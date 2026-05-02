@@ -296,9 +296,9 @@
 /*
   FORM SETUP:
   Create a Google Form for sign-up, then paste its public /viewform link below.
-  Example: const SIGNUP_FORM_URL = "https://docs.google.com/forms/d/e/xxxx/viewform?embedded=true";
+  Example: const SIGNUP_FORM_URL = "https://forms.gle/kSYBzuvKE2JtLQDeA"; // Google Form sign-up link.
 */
-const SIGNUP_FORM_URL = ""; // Paste Google Form link here later.
+const SIGNUP_FORM_URL = "https://forms.gle/kSYBzuvKE2JtLQDeA"; // Google Form sign-up link.
 
 // Optional debug mode: add ?debug=1 to the website URL to show data checks.
 if (new URLSearchParams(window.location.search).get("debug") === "1") {
@@ -383,7 +383,7 @@ function renderHome(){
       <h2>The Trading Floor is Open</h2>
       <p>Draft nations, watch the points move, and pretend this is investment strategy rather than football chaos in a suit.</p>
       <div class="hero-actions">
-        <button class="cta" onclick="openSignup()">Join / Register Interest</button>
+        <a class="cta" href="https://forms.gle/kSYBzuvKE2JtLQDeA" target="_blank" rel="noopener" style="text-decoration:none;display:inline-block;">Join / Register Interest</a>
         <button class="cta secondary" onclick="goPage('table')">View League Table</button>
         <button class="cta secondary" onclick="goPage('fixtures')">Check Fixtures</button>
       </div>
