@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>World Cup Stock Exchange</title>
+  <style>
+    :root{--bg:#07111f;--panel:#0f1d31;--panel2:#132640;--line:#29405f;--text:#eef5ff;--muted:#a6bdd7;--accent:#5ee7ff;--bad:#ff6b6b;--good:#7dff9e;--warn:#ffd166;}
+    *{box-sizing:border-box} body{margin:0;background:linear-gradient(180deg,#07111f,#091827);color:var(--text);font-family:Inter,system-ui,-apple-system,Segoe UI,Arial,sans-serif;}
+    header{padding:22px 24px 16px;border-bottom:1px solid var(--line);position:sticky;top:0;background:rgba(7,17,31,.94);backdrop-filter:blur(8px);z-index:5}
+    h1{font-size:34px;line-height:1;margin:0 0 8px}.tagline{color:var(--muted);font-size:14px}.wrap{max-width:1180px;margin:0 auto;padding:0 16px}.tabs{display:flex;gap:8px;flex-wrap:wrap;margin-top:22px}.tab{border:1px solid var(--line);background:transparent;color:var(--text);border-radius:999px;padding:9px 14px;font-weight:700;cursor:pointer}.tab.active{background:var(--accent);color:#04111e;border-color:var(--accent)}main{padding:18px 0 44px}.section{display:none}.section.active{display:block}.grid{display:grid;gap:12px}.grid3{grid-template-columns:repeat(3,minmax(0,1fr))}.grid2{grid-template-columns:repeat(2,minmax(0,1fr))}.card{background:linear-gradient(180deg,var(--panel),#0b1728);border:1px solid var(--line);border-radius:14px;padding:16px;box-shadow:0 10px 30px rgba(0,0,0,.18)}.label{letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-size:12px}.big{font-size:30px;font-weight:900;margin-top:6px}.sub{color:var(--muted);font-size:14px;margin-top:4px}.toolbar{display:flex;gap:10px;flex-wrap:wrap;margin:0 0 12px}.search,.select{background:#081529;border:1px solid var(--line);border-radius:10px;color:var(--text);padding:10px 12px;min-width:200px}table{width:100%;border-collapse:collapse;background:var(--panel);border-radius:14px;overflow:hidden;border:1px solid var(--line)}th,td{padding:10px 11px;border-bottom:1px solid rgba(41,64,95,.65);text-align:left;font-size:14px}th{background:#10243e;color:#d9edff;position:sticky;top:122px;z-index:2}tr:hover td{background:rgba(94,231,255,.045)}.pill{display:inline-flex;border:1px solid var(--line);background:#0a1729;border-radius:999px;padding:4px 8px;font-size:12px;color:#dcecff}.played{color:var(--good)}.scheduled{color:var(--warn)}.error{color:var(--bad)}.ok{color:var(--good)}.muted{color:var(--muted)}.report{white-space:pre-wrap;line-height:1.45}.debug{font-size:12px;color:var(--muted);margin-top:18px}.debug .bad{color:var(--bad)}.empty{padding:22px;color:var(--muted);text-align:center;border:1px dashed var(--line);border-radius:14px;background:rgba(15,29,49,.55)}@media(max-width:760px){h1{font-size:28px}.grid3,.grid2{grid-template-columns:1fr}th{position:static}.card{padding:14px}table{display:block;overflow:auto;white-space:nowrap}.search,.select{width:100%}}
+  </style>
+</head>
+<body>
+  <header><div class="wrap"><h1>World Cup Stock Exchange</h1><div class="tagline">48 nations. One market. Several terrible investments.</div><nav class="tabs" id="tabs"></nav></div></header>
+  <main><div class="wrap">
+    <section id="trading" class="section active"></section>
+    <section id="league" class="section"></section>
+    <section id="fixtures" class="section"></section>
+    <section id="portfolios" class="section"></section>
+    <section id="nations" class="section"></section>
+    <section id="reports" class="section"></section>
+    <section id="rules" class="section"></section>
+    <div class="debug" id="debug"></div>
+  </div></main>
+<script>
+const SHEET_ID = "1GRDmFQt8SI-IeFVGWwAVUFin99kp7re7jx4vZbkPpxA";
+const SHEETS = {
+  league: "Public_League_Table",
+  fixtures: "Public_Fixtures",
+  portfolios: "Public_Portfolios",
+  nations: "Public_Nations",
+  reports: "Public_Market_Reports",
+  rules: "Public_Rules"
+};
+const TABS = [
+  ["trading","Trading Floor"],["league","League Table"],["fixtures","Fixtures"],["portfolios","Portfolios"],["nations","Nation Market"],["reports","Market Reports"],["rules","Rules"]
+];
+const state = {league:[],fixtures:[],portfolios:[],nations:[],reports:[],rules:[],issues:[]};
+function norm(s){return String(s||"").trim().toLowerCase().replace(/[^a-z0-9]+/g,"_").replace(/^_|_$/g,"");}
+function val(row,names){for(const name of names){const k=norm(name); if(row[k]!==undefined && row[k]!==null && row[k]!=="") return row[k];} return "";}
+function num(v){const n=parseFloat(String(v||"").replace(/[^0-9.-]/g,""));return isNaN(n)?0:n;}
+function esc(s){return String(s??"").replace(/[&<>'"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;","\"":"&quot;"}[c]));}
+function loadSheet(key, sheetName){
+  return new Promise((resolve)=>{
+    const cb = "wcse_cb_" + key + "_" + Math.random().toString(36).slice(2);
+    const timer = setTimeout(()=>{cleanup(); state.issues.push(`${sheetName}: timed out. Check sharing/publish settings.`); resolve([]);},12000);
+    function cleanup(){clearTimeout(timer); try{delete window[cb];}catch(e){window[cb]=undefined;} if(script.parentNode) script.parentNode.removeChild(script);}
+    window[cb]=function(resp){
+      cleanup();
+      try{
+        if(resp.status && resp.status !== "ok") {state.issues.push(`${sheetName}: ${resp.status} ${resp.errors?JSON.stringify(resp.errors):""}`); return resolve([]);}
+        const table = resp.table || {}; const cols = (table.cols||[]).map((c,i)=>norm(c.label || c.id || `col_${i+1}`));
+        const rows = (table.rows||[]).map(r=>{const obj={}; (r.c||[]).forEach((cell,i)=>{obj[cols[i]||`col_${i+1}`]=cell ? (cell.f ?? cell.v ?? "") : "";}); return obj;});
+        resolve(rows);
+      } catch(e){state.issues.push(`${sheetName}: parse failed - ${e.message}`); resolve([]);}
+    };
+    const script=document.createElement("script");
+    script.onerror=function(){cleanup(); state.issues.push(`${sheetName}: script load failed. Make sure the Google Sheet is shared as Anyone with the link can view.`); resolve([]);};
+    const url = `https://docs.google.com/spreadsheets/d/${encodeURIComponent(SHEET_ID)}/gviz/tq?sheet=${encodeURIComponent(sheetName)}&headers=1&tqx=responseHandler:${cb}`;
+    script.src=url; document.body.appendChild(script);
+  });
+}
+function table(headers, rows){
+  if(!rows.length) return `<div class="empty">No rows loaded yet.</div>`;
+  return `<table><thead><tr>${headers.map(h=>`<th>${esc(h[0])}</th>`).join("")}</tr></thead><tbody>${rows.map(r=>`<tr>${headers.map(h=>`<td>${esc(typeof h[1]==='function'?h[1](r):val(r,[h[1]]))}</td>`).join("")}</tr>`).join("")}</tbody></table>`;
+}
+function buildTabs(){
+  document.getElementById('tabs').innerHTML=TABS.map(([id,label],i)=>`<button class="tab ${i===0?'active':''}" data-tab="${id}">${label}</button>`).join('');
+  document.querySelectorAll('.tab').forEach(btn=>btn.addEventListener('click',()=>{document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));btn.classList.add('active');document.getElementById(btn.dataset.tab).classList.add('active');}));
+}
+function renderTrading(){
+  const league = state.league.slice().filter(r=>val(r,["Manager_Name","Team_Name","Manager"]));
+  const leader = league[0] || {};
+  const played = state.fixtures.filter(r=>String(val(r,["Status"])).toLowerCase()==='played').length;
+  const next = state.fixtures.find(r=>String(val(r,["Status"])).toLowerCase()!=='played') || {};
+  const latestReport = state.reports[0] || {};
+  const nextTxt = next.team_a || next.team_a_id || next.a_team || "TBC";
+  const nextB = next.team_b || next.team_b_id || next.b_team || "TBC";
+  document.getElementById('trading').innerHTML = `
+    <div class="grid grid3">
+      <div class="card"><div class="label">Market Leader</div><div class="big">${esc(val(leader,["Team_Name","Manager_Name","Manager"])||"TBC")}</div><div class="sub">${esc(val(leader,["Total_Points","Points"])||0)} pts</div></div>
+      <div class="card"><div class="label">Fixtures Played</div><div class="big">${played}</div><div class="sub">of ${state.fixtures.length}</div></div>
+      <div class="card"><div class="label">Next Fixture</div><div class="big" style="font-size:18px">${esc(nextTxt)} v ${esc(nextB)}</div><div class="sub">${esc(val(next,["Date","UK_Date","Stage","Round"])||"")}</div></div>
+    </div>
+    <div class="card" style="margin-top:12px"><div class="label">Latest Market Report</div><div class="report">${esc(val(latestReport,["Report","Market_Report","Text","Notes"])||"No report loaded yet.")}</div></div>`;
+}
+function renderLeague(){
+  document.getElementById('league').innerHTML = `<div class="toolbar"><input class="search" placeholder="Search league..." oninput="filterTable('leagueTable',this.value)"></div><div id="leagueTable">` + table([
+    ["Pos", r=>val(r,["Position","Rank","Pos"])], ["Manager", r=>val(r,["Manager_Name","Manager"])], ["Team", r=>val(r,["Team_Name","Team"])], ["Points", r=>val(r,["Total_Points","Points"])], ["Captain", r=>val(r,["Captain_Nation","Captain"])], ["Notes", r=>val(r,["Notes"])]
+  ], state.league) + `</div>`;
+}
+function renderFixtures(){
+  document.getElementById('fixtures').innerHTML = `<div class="toolbar"><input class="search" placeholder="Search fixtures..." oninput="filterTable('fixturesTable',this.value)"></div><div id="fixturesTable">` + table([
+    ["Match", r=>val(r,["Match_No","Match_ID"])], ["Date", r=>val(r,["Date","UK_Date"])], ["Stage", r=>val(r,["Stage"])], ["Group/Round", r=>val(r,["Group","Round"])], ["Team A", r=>val(r,["Team_A","A_Team"])], ["Score", r=>{const a=val(r,["A_Goals"]); const b=val(r,["B_Goals"]); return (a!==""||b!=="")?`${a} - ${b}`:"v";}], ["Team B", r=>val(r,["Team_B","B_Team"])], ["Status", r=>val(r,["Status"])], ["Notes", r=>val(r,["Notes"])]
+  ], state.fixtures) + `</div>`;
+}
+function renderPortfolios(){
+  document.getElementById('portfolios').innerHTML = `<div class="toolbar"><input class="search" placeholder="Search portfolios..." oninput="filterTable('portfoliosTable',this.value)"></div><div id="portfoliosTable">` + table([
+    ["Manager", r=>val(r,["Manager_Name","Manager"])], ["Team", r=>val(r,["Team_Name","Team"])], ["Nation", r=>val(r,["Nation"])], ["Tier", r=>val(r,["Draft_Tier","Tier"])], ["Slot", r=>val(r,["Draft_Slot","Portfolio_Slot"])], ["Captain", r=>val(r,["Captain","Captain?"])], ["Points", r=>val(r,["Total_Points","Points"])], ["Status", r=>val(r,["Status"])]
+  ], state.portfolios) + `</div>`;
+}
+function renderNations(){
+  document.getElementById('nations').innerHTML = `<div class="toolbar"><input class="search" placeholder="Search nations..." oninput="filterTable('nationsTable',this.value)"></div><div id="nationsTable">` + table([
+    ["Nation", r=>val(r,["Nation"])], ["Group", r=>val(r,["Group"])], ["Tier", r=>val(r,["Draft_Tier","Tier"])], ["Owner", r=>val(r,["Drafted_By","Owner","Manager_Name"])], ["Captain", r=>val(r,["Captain","Captain?"])], ["Points", r=>val(r,["Total_Points","Points"])], ["Status", r=>val(r,["Status"])], ["Notes", r=>val(r,["Notes"])]
+  ], state.nations) + `</div>`;
+}
+function renderReports(){
+  const rows=state.reports;
+  document.getElementById('reports').innerHTML = rows.length ? rows.map(r=>`<div class="card" style="margin-bottom:12px"><div class="label">${esc(val(r,["Date","Round","Title"])||"Market Report")}</div><div class="report">${esc(val(r,["Report","Market_Report","Text","Notes"])||JSON.stringify(r,null,2))}</div></div>`).join('') : `<div class="empty">No market reports loaded yet.</div>`;
+}
+function renderRules(){
+  document.getElementById('rules').innerHTML = table([
+    ["Rule", r=>val(r,["Rule","Event","Scoring_Event"])], ["Points", r=>val(r,["Points"])], ["Notes", r=>val(r,["Notes","Description"])]
+  ], state.rules);
+}
+function filterTable(id,q){q=String(q).toLowerCase(); const el=document.getElementById(id); if(!el)return; el.querySelectorAll('tbody tr').forEach(tr=>{tr.style.display=tr.textContent.toLowerCase().includes(q)?'':'none';});}
+function renderDebug(){
+  document.getElementById('debug').innerHTML = `<strong>Data check:</strong> Loaded rows — table: ${state.league.length}, fixtures: ${state.fixtures.length}, portfolios: ${state.portfolios.length}, nations: ${state.nations.length}, reports: ${state.reports.length}, rules: ${state.rules.length}` + (state.issues.length?`<br><span class="bad"><strong>Load issues:</strong> ${state.issues.map(esc).join(' | ')}</span>`:`<br><span class="ok">All data tables loaded.</span>`);
+}
+function renderAll(){renderTrading();renderLeague();renderFixtures();renderPortfolios();renderNations();renderReports();renderRules();renderDebug();}
+async function init(){
+  buildTabs();
+  const entries = Object.entries(SHEETS);
+  const results = await Promise.all(entries.map(([key,sheet])=>loadSheet(key,sheet)));
+  results.forEach((rows,i)=>state[entries[i][0]]=rows);
+  renderAll();
+}
+init();
+</script>
+</body>
+</html>
