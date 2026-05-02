@@ -87,7 +87,7 @@ function renderTrading(){
 }
 function renderLeague(){
   document.getElementById('league').innerHTML = `<div class="toolbar"><input class="search" placeholder="Search league..." oninput="filterTable('leagueTable',this.value)"></div><div id="leagueTable">` + table([
-    ["Pos", r=>val(r,["Position","Rank","Pos"])], ["Manager", r=>val(r,["Manager_Name","Manager"])], ["Team", r=>val(r,["Team_Name","Team"])], ["Points", r=>val(r,["Total_Points","Points"])], ["Captain", r=>val(r,["Captain_Nation","Captain"])], ["Notes", r=>val(r,["Notes"])]
+    ["Pos", r=>val(r,["Position","Rank","Pos"])], ["Manager", r=>val(r,["Manager_Name","Owner_Name","Manager"])], ["Team", r=>val(r,["Team_Name","Team"])], ["Points", r=>val(r,["Total_Points","Points"])], ["Captain", r=>val(r,["Captain_Nation","Captain"])], ["Notes", r=>val(r,["Notes"])]
   ], state.league) + `</div>`;
 }
 function renderFixtures(){
@@ -97,12 +97,12 @@ function renderFixtures(){
 }
 function renderPortfolios(){
   document.getElementById('portfolios').innerHTML = `<div class="toolbar"><input class="search" placeholder="Search portfolios..." oninput="filterTable('portfoliosTable',this.value)"></div><div id="portfoliosTable">` + table([
-    ["Manager", r=>val(r,["Manager_Name","Manager"])], ["Team", r=>val(r,["Team_Name","Team"])], ["Nation", r=>val(r,["Nation"])], ["Tier", r=>val(r,["Draft_Tier","Tier"])], ["Slot", r=>val(r,["Draft_Slot","Portfolio_Slot"])], ["Captain", r=>val(r,["Captain","Captain?"])], ["Points", r=>val(r,["Total_Points","Points"])], ["Status", r=>val(r,["Status"])]
+    ["Manager", r=>val(r,["Manager_Name","Owner_Name","Manager"])], ["Team", r=>val(r,["Team_Name","Team"])], ["Nation", r=>val(r,["Nation"])], ["Tier", r=>val(r,["Draft_Tier","Tier"])], ["Slot", r=>val(r,["Draft_Slot","Portfolio_Slot"])], ["Captain", r=>val(r,["Captain","Captain?","Captain_Status"])], ["Points", r=>val(r,["Total_Points","Points"])], ["Status", r=>val(r,["Status"])]
   ], state.portfolios) + `</div>`;
 }
 function renderNations(){
   document.getElementById('nations').innerHTML = `<div class="toolbar"><input class="search" placeholder="Search nations..." oninput="filterTable('nationsTable',this.value)"></div><div id="nationsTable">` + table([
-    ["Nation", r=>val(r,["Nation"])], ["Group", r=>val(r,["Group"])], ["Tier", r=>val(r,["Draft_Tier","Tier"])], ["Owner", r=>val(r,["Drafted_By","Owner","Manager_Name"])], ["Captain", r=>val(r,["Captain","Captain?"])], ["Points", r=>val(r,["Total_Points","Points"])], ["Status", r=>val(r,["Status"])], ["Notes", r=>val(r,["Notes"])]
+    ["Nation", r=>val(r,["Nation"])], ["Group", r=>val(r,["Group"])], ["Tier", r=>val(r,["Draft_Tier","Tier"])], ["Owner", r=>val(r,["Owner_Name","Owner_Manager_ID","Drafted_By","Owner","Manager_Name"])], ["Captain", r=>val(r,["Captain","Captain?","Captain_Status"])], ["Points", r=>val(r,["Total_Points","Points"])], ["Status", r=>val(r,["Status"])], ["Notes", r=>val(r,["Notes"])]
   ], state.nations) + `</div>`;
 }
 function renderReports(){
