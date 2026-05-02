@@ -2,148 +2,643 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>World Cup Stock Exchange</title>
   <style>
     :root{
-      --bg:#06111f; --panel:#0d1b2e; --panel2:#102238; --line:#24415f;
-      --text:#f3f7ff; --muted:#a9bed8; --accent:#55dff4; --good:#65f5a4; --bad:#ff7474;
-      --warn:#ffd166;
+      --bg:#050814;
+      --bg2:#080f24;
+      --panel:#101a33;
+      --panel2:#151f3d;
+      --line:rgba(255,255,255,.14);
+      --text:#f7fbff;
+      --muted:#aab8d4;
+      --cyan:#59f1ff;
+      --cyan2:#00b8ff;
+      --pink:#ff3ea5;
+      --gold:#ffd166;
+      --green:#58f28f;
+      --red:#ff5f73;
+      --orange:#ff9f1c;
+      --purple:#a66cff;
+      --shadow:0 16px 40px rgba(0,0,0,.35);
     }
+
     *{box-sizing:border-box}
-    body{margin:0;background:linear-gradient(180deg,#050e1b,#071424 45%,#06111f);color:var(--text);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;}
-    .wrap{max-width:1180px;margin:0 auto;padding:20px 18px 40px;}
-    header{border-bottom:1px solid var(--line);position:sticky;top:0;background:rgba(6,17,31,.96);backdrop-filter:blur(8px);z-index:5}
-    h1{font-size:34px;margin:0 0 4px;letter-spacing:.2px}.tag{color:var(--muted);font-size:14px;margin-bottom:18px}
-    nav{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}.tab{border:1px solid var(--line);background:#07182b;color:var(--text);border-radius:999px;padding:9px 15px;font-weight:700;cursor:pointer}.tab.active{background:var(--accent);color:#04111d;border-color:var(--accent)}
-    .page{display:none;padding-top:18px}.page.active{display:block}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.card{background:linear-gradient(180deg,var(--panel),#0a1728);border:1px solid var(--line);border-radius:14px;padding:16px;box-shadow:0 8px 22px rgba(0,0,0,.22)}
-    .label{font-size:11px;text-transform:uppercase;letter-spacing:2px;color:#b7d7ff}.big{font-size:30px;font-weight:900;margin:6px 0 2px}.small{color:var(--muted);font-size:13px}.report-card{margin-top:12px}.report-meta{font-size:11px;text-transform:uppercase;letter-spacing:1.8px;color:#b7d7ff;margin-bottom:9px}.report-title{font-size:22px;font-weight:900;margin-bottom:10px}.report-body{font-size:15px;line-height:1.55;white-space:pre-wrap;color:#f5f8ff}.toolbar{margin-bottom:10px;display:flex;gap:10px;flex-wrap:wrap}.search{background:#07182b;border:1px solid var(--line);color:var(--text);border-radius:9px;padding:10px 12px;min-width:220px}.table-wrap{overflow:auto;border:1px solid var(--line);border-radius:12px;background:rgba(13,27,46,.75)}table{width:100%;border-collapse:collapse;font-size:14px}th,td{padding:10px;border-bottom:1px solid rgba(36,65,95,.75);text-align:left;vertical-align:top}th{background:#102238;color:#eaf3ff;font-size:12px;text-transform:uppercase;letter-spacing:.6px}tr:hover td{background:rgba(85,223,244,.05)}.pill{display:inline-block;border:1px solid var(--line);border-radius:999px;padding:3px 8px;font-size:12px;color:#dcecff;background:#07182b}.status-played{color:var(--good);font-weight:800}.status-scheduled{color:var(--muted)}.error{color:var(--bad)}.ok{color:var(--good)}.data-check{font-size:12px;margin-top:14px;color:var(--muted)}.rules-list{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}.rule{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px}.empty{color:var(--muted);font-style:italic}@media(max-width:760px){h1{font-size:26px}.grid,.rules-list{grid-template-columns:1fr}.wrap{padding:16px 12px}.big{font-size:24px}table{font-size:12px}th,td{padding:8px}}
+    html{scroll-behavior:smooth}
+    body{
+      margin:0;
+      color:var(--text);
+      font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+      background:
+        radial-gradient(circle at 15% 0%, rgba(255,62,165,.20), transparent 30%),
+        radial-gradient(circle at 85% 12%, rgba(89,241,255,.22), transparent 34%),
+        linear-gradient(180deg,var(--bg) 0%,#071022 52%,#050814 100%);
+      min-height:100vh;
+    }
+
+    body:before{
+      content:"";
+      position:fixed; inset:0;
+      pointer-events:none;
+      background:
+        linear-gradient(90deg, rgba(255,255,255,.03) 1px, transparent 1px),
+        linear-gradient(rgba(255,255,255,.025) 1px, transparent 1px);
+      background-size:44px 44px;
+      mask-image:linear-gradient(to bottom, rgba(0,0,0,.8), transparent 85%);
+    }
+
+    .topbar{
+      position:sticky; top:0; z-index:20;
+      backdrop-filter: blur(14px);
+      background:rgba(5,8,20,.78);
+      border-bottom:1px solid var(--line);
+    }
+    header{
+      max-width:1180px;
+      margin:0 auto;
+      padding:18px 18px 12px;
+    }
+    .brandrow{display:flex;align-items:center;justify-content:space-between;gap:16px}
+    .brandmark{display:flex;align-items:center;gap:12px}
+    .logo{
+      width:46px;height:46px;border-radius:14px;
+      background:conic-gradient(from 180deg,var(--cyan),var(--pink),var(--gold),var(--cyan));
+      box-shadow:0 0 24px rgba(89,241,255,.35);
+      display:grid;place-items:center;color:#06101d;font-weight:1000;
+      transform:skew(-7deg);
+    }
+    h1{margin:0;font-size:34px;letter-spacing:.2px;line-height:1}
+    .tagline{color:var(--muted);font-size:14px;margin-top:5px}
+    .menuToggle{
+      display:none;
+      border:1px solid var(--line);
+      color:var(--text);
+      background:rgba(255,255,255,.06);
+      border-radius:12px;
+      padding:10px 12px;
+      font-weight:900;
+      cursor:pointer;
+    }
+    nav{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}
+    button.tab{
+      border:1px solid rgba(89,241,255,.28);
+      background:rgba(8,17,38,.9);
+      color:var(--text);
+      border-radius:999px;
+      padding:10px 14px;
+      font-weight:900;
+      cursor:pointer;
+      box-shadow:inset 0 0 0 1px rgba(255,255,255,.02);
+      transition:.15s transform,.15s background,.15s border-color;
+    }
+    button.tab:hover{transform:translateY(-1px);border-color:rgba(89,241,255,.7)}
+    button.tab.active{
+      background:linear-gradient(135deg,var(--cyan),#7affd7);
+      color:#05101f;
+      border-color:transparent;
+      box-shadow:0 0 20px rgba(89,241,255,.25);
+    }
+
+    main{max-width:1180px;margin:0 auto;padding:20px 18px 48px}
+    .page{display:none}.page.active{display:block}
+
+    .hero{
+      border:1px solid var(--line);
+      background:
+        linear-gradient(135deg,rgba(89,241,255,.14),rgba(255,62,165,.08)),
+        rgba(16,26,51,.8);
+      border-radius:22px;
+      padding:20px;
+      box-shadow:var(--shadow);
+      overflow:hidden;
+      position:relative;
+    }
+    .hero:after{
+      content:"MARKET OPEN";
+      position:absolute;right:-28px;top:20px;
+      font-size:52px;font-weight:1000;letter-spacing:3px;
+      color:rgba(255,255,255,.045);
+      transform:rotate(8deg);
+    }
+    .hero h2{font-size:28px;margin:0 0 4px}
+    .hero p{margin:0;color:var(--muted)}
+    .hero-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+    .cta{
+      border:0;border-radius:14px;padding:12px 16px;font-weight:1000;cursor:pointer;
+      color:#06101d;background:linear-gradient(135deg,var(--gold),#ffef9d);
+    }
+    .cta.secondary{background:rgba(255,255,255,.08);color:var(--text);border:1px solid var(--line)}
+
+    .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:14px}
+    .grid.two{grid-template-columns:2fr 1fr}
+    .card{
+      background:linear-gradient(180deg,rgba(21,31,61,.92),rgba(12,21,42,.92));
+      border:1px solid var(--line);
+      border-radius:18px;
+      padding:16px;
+      box-shadow:var(--shadow);
+    }
+    .kicker{font-size:11px;text-transform:uppercase;letter-spacing:1.9px;color:var(--cyan);font-weight:1000}
+    .big{font-size:32px;font-weight:1000;margin:7px 0 3px;line-height:1}
+    .small{color:var(--muted);font-size:13px}
+    .report-title{font-size:22px;font-weight:1000;margin:10px 0 8px}
+    .report-body{font-size:15px;line-height:1.55;white-space:pre-wrap;color:#ecf7ff}
+    .ticker{
+      margin-top:14px;border:1px solid rgba(89,241,255,.25);
+      background:rgba(89,241,255,.08);
+      border-radius:14px;padding:10px 12px;overflow:hidden;
+      color:#d9fbff;font-weight:800;
+    }
+
+    .toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:0 0 12px}
+    input.search, select.filter{
+      background:rgba(7,16,36,.92);
+      border:1px solid rgba(89,241,255,.24);
+      border-radius:12px;
+      color:var(--text);
+      padding:11px 12px;
+      min-width:170px;
+      outline:none;
+    }
+
+    table{
+      width:100%;border-collapse:separate;border-spacing:0;
+      background:rgba(11,21,42,.86);
+      border:1px solid var(--line);
+      border-radius:16px;overflow:hidden;
+      box-shadow:var(--shadow);
+    }
+    th,td{
+      border-bottom:1px solid rgba(255,255,255,.085);
+      padding:11px 10px;text-align:left;font-size:13px;vertical-align:middle;
+    }
+    th{
+      background:linear-gradient(180deg,rgba(89,241,255,.14),rgba(255,255,255,.04));
+      font-size:11px;text-transform:uppercase;letter-spacing:.7px;color:#f2fbff;
+      position:sticky;top:103px;z-index:5;
+    }
+    tr:hover td{background:rgba(89,241,255,.045)}
+    tr:last-child td{border-bottom:none}
+
+    .pos{
+      width:30px;height:30px;border-radius:10px;display:grid;place-items:center;
+      background:rgba(255,255,255,.08);font-weight:1000;
+    }
+    .podium1{background:linear-gradient(135deg,var(--gold),#fff2a8);color:#07101f}
+    .podium2{background:linear-gradient(135deg,#d9e5f4,#8796a8);color:#07101f}
+    .podium3{background:linear-gradient(135deg,#ffb15e,#9b5d1d);color:#07101f}
+
+    .badge{
+      display:inline-flex;align-items:center;gap:6px;
+      border-radius:999px;padding:5px 9px;font-size:12px;font-weight:1000;
+      border:1px solid rgba(255,255,255,.13);white-space:nowrap;
+    }
+    .tier-bluechip{background:rgba(89,241,255,.16);color:#9ff7ff}
+    .tier-contender{background:rgba(88,242,143,.14);color:#98ffbe}
+    .tier-midmarket{background:rgba(255,209,102,.14);color:#ffe09a}
+    .tier-darkhorse{background:rgba(166,108,255,.17);color:#d8c4ff}
+    .tier-wildcard{background:rgba(255,159,28,.16);color:#ffc275}
+    .tier-pennystock{background:rgba(255,95,115,.16);color:#ff9daa}
+    .status-active,.status-played{background:rgba(88,242,143,.14);color:#96ffbd}
+    .status-scheduled{background:rgba(89,241,255,.12);color:#a8f8ff}
+    .status-eliminated{background:rgba(255,95,115,.16);color:#ff9daa}
+    .captain{background:rgba(255,209,102,.16);color:#ffe09a}
+
+    .portfolio-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:12px}
+    .manager-card h3{margin:0 0 4px;font-size:19px}
+    .points-burst{font-size:24px;font-weight:1000;color:var(--gold)}
+    .nation-list{display:flex;flex-direction:column;gap:8px;margin-top:12px}
+    .nation-chip{
+      display:flex;justify-content:space-between;gap:8px;align-items:center;
+      background:rgba(255,255,255,.045);border:1px solid rgba(255,255,255,.08);
+      border-radius:13px;padding:9px;
+    }
+
+    .rules-wrap{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(280px,.8fr);gap:14px}
+    .rules-list li{margin:0 0 9px;line-height:1.45}
+    .download{
+      display:inline-block;text-decoration:none;border-radius:12px;
+      background:linear-gradient(135deg,var(--cyan),#9dffe7);color:#06101d;
+      padding:11px 14px;font-weight:1000;margin-top:10px;
+    }
+
+    .form-modal{
+      display:none;position:fixed;inset:0;z-index:50;background:rgba(0,0,0,.72);
+      padding:20px;
+    }
+    .form-box{max-width:760px;margin:30px auto;background:var(--panel);border:1px solid var(--line);border-radius:18px;overflow:hidden}
+    .form-head{display:flex;justify-content:space-between;align-items:center;padding:12px 14px;border-bottom:1px solid var(--line)}
+    .form-head button{background:rgba(255,255,255,.08);color:var(--text);border:1px solid var(--line);border-radius:10px;padding:8px 10px;cursor:pointer}
+    iframe{width:100%;height:660px;border:0;background:white}
+    .debug{font-size:12px;color:#8fd7ff;margin-top:14px}.ok{color:var(--green)}.err{color:var(--red)}
+
+    @media(max-width:820px){
+      header{padding:14px}
+      h1{font-size:25px}
+      .menuToggle{display:block}
+      nav{display:none}
+      nav.open{display:flex;position:fixed;left:12px;right:12px;top:82px;background:rgba(5,8,20,.96);border:1px solid var(--line);border-radius:18px;padding:12px;box-shadow:var(--shadow)}
+      button.tab{width:100%;text-align:left}
+      .grid,.grid.two,.rules-wrap{grid-template-columns:1fr}
+      table{display:block;overflow-x:auto;white-space:nowrap}
+      th{position:static}
+      .hero:after{display:none}
+    }
   </style>
 </head>
 <body>
-<header><div class="wrap" style="padding-bottom:10px"><h1>World Cup Stock Exchange</h1><div class="tag">48 nations. One market. Several terrible investments.</div><nav id="tabs"></nav></div></header>
-<main class="wrap">
-  <section id="trading" class="page active"></section>
-  <section id="league" class="page"></section>
+<div class="topbar">
+<header>
+  <div class="brandrow">
+    <div class="brandmark">
+      <div class="logo">£F</div>
+      <div>
+        <h1>World Cup Stock Exchange</h1>
+        <div class="tagline">48 nations. One market. Several terrible investments.</div>
+      </div>
+    </div>
+    <button class="menuToggle" onclick="document.querySelector('nav').classList.toggle('open')">☰ Menu</button>
+  </div>
+  <nav>
+    <button class="tab active" data-page="home">Trading Floor</button>
+    <button class="tab" data-page="table">League Table</button>
+    <button class="tab" data-page="fixtures">Fixtures</button>
+    <button class="tab" data-page="portfolios">Portfolios</button>
+    <button class="tab" data-page="nations">Nation Market</button>
+    <button class="tab" data-page="reports">Market Reports</button>
+    <button class="tab" data-page="rules">Rules</button>
+  </nav>
+</header>
+</div>
+
+<main>
+  <section id="home" class="page active"></section>
+  <section id="table" class="page"></section>
   <section id="fixtures" class="page"></section>
   <section id="portfolios" class="page"></section>
   <section id="nations" class="page"></section>
   <section id="reports" class="page"></section>
   <section id="rules" class="page"></section>
-  <div id="debug" class="data-check"></div>
 </main>
+
+<div class="form-modal" id="signupModal">
+  <div class="form-box">
+    <div class="form-head">
+      <b>Join the Market</b>
+      <button onclick="closeSignup()">Close</button>
+    </div>
+    <div id="signupBody"></div>
+  </div>
+</div>
+
 <script>
-const SHEET_ID = '1GRDmFQt8SI-IeFVGWwAVUFin99kp7re7jx4vZbkPpxA';
-const SHEETS = {
-  league:'Public_League_Table', fixtures:'Public_Fixtures', portfolios:'Public_Portfolios',
-  nations:'Public_Nations', reports:'Public_Market_Reports', rules:'Public_Rules'
+/*
+  FORM SETUP:
+  Create a Google Form for sign-up, then paste its public /viewform link below.
+  Example: const SIGNUP_FORM_URL = "https://docs.google.com/forms/d/e/xxxx/viewform?embedded=true";
+*/
+const SIGNUP_FORM_URL = ""; // Paste Google Form link here later.
+
+const SHEET_ID = "1GRDmFQt8SI-IeFVGWwAVUFin99kp7re7jx4vZbkPpxA";
+const TABLES = {
+  league: "Public_League_Table",
+  fixtures: "Public_Fixtures",
+  portfolios: "Public_Portfolios",
+  nations: "Public_Nations",
+  reports: "Public_Market_Reports",
+  rules: "Public_Rules"
 };
-const PAGES = [
-  ['trading','Trading Floor'], ['league','League Table'], ['fixtures','Fixtures'], ['portfolios','Portfolios'],
-  ['nations','Nation Market'], ['reports','Market Reports'], ['rules','Rules']
-];
-const state = {league:[],fixtures:[],portfolios:[],nations:[],reports:[],rules:[],issues:[]};
-function norm(s){return String(s||'').toLowerCase().replace(/[^a-z0-9]/g,'')}
-function get(row, names, fallback=''){
-  for(const n of names){const k=Object.keys(row).find(x=>norm(x)===norm(n)); if(k && row[k]!==undefined && row[k]!==null && String(row[k]).trim()!=='') return row[k];}
-  return fallback;
+const state = { league:[], fixtures:[], portfolios:[], nations:[], reports:[], rules:[], errors:[] };
+
+function normKey(k){return String(k??"").replace(/\uFEFF/g,"").trim().toLowerCase().replace(/[^a-z0-9]/g,"")}
+function val(row,names){for(const name of names){const t=normKey(name);for(const k of Object.keys(row)){if(normKey(k)===t)return row[k]}}return""}
+function clean(v){return String(v??"").trim()}
+function toNum(v){const n=Number(String(v??"").replace(/[^\d.-]/g,''));return isNaN(n)?0:n}
+function esc(s){return String(s??"").replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
+function slug(s){return clean(s).toLowerCase().replace(/[^a-z0-9]+/g,"")}
+function badge(text,type=""){return text?`<span class="badge ${type}">${esc(text)}</span>`:""}
+function tierBadge(t){const s=slug(t); let c=""; if(s.includes("blue"))c="tier-bluechip"; else if(s.includes("contender"))c="tier-contender"; else if(s.includes("mid"))c="tier-midmarket"; else if(s.includes("dark"))c="tier-darkhorse"; else if(s.includes("wild"))c="tier-wildcard"; else if(s.includes("penny"))c="tier-pennystock"; return badge(t,c)}
+function statusBadge(s){const x=slug(s); let c=x.includes("played")?"status-played":x.includes("scheduled")?"status-scheduled":x.includes("eliminated")?"status-eliminated":x.includes("active")?"status-active":""; return badge(s,c)}
+
+function getRowsFromGvizResponse(json){
+  const cols=json.table.cols.map((c,i)=>clean(c.label||c.id||`Col${i+1}`));
+  return json.table.rows.map(r=>{const o={};cols.forEach((c,i)=>{const cell=r.c[i];o[c]=cell?(cell.f??cell.v??""):""});return o})
+    .filter(row=>Object.values(row).some(v=>clean(v)!==""));
 }
-function num(v){const n=parseFloat(String(v||'').replace(/[^0-9.-]/g,''));return isNaN(n)?0:n}
-function loadSheet(key, sheetName){
-  return new Promise((resolve)=>{
-    const cb='wcse_cb_'+key+'_'+Date.now();
-    window[cb]=function(resp){
-      try{
-        if(resp && resp.status==='error'){throw new Error(resp.errors?.map(e=>e.detailed_message||e.message).join(' | ')||'Google returned error')}
-        const cols=(resp.table.cols||[]).map((c,i)=>c.label||c.id||('Col'+(i+1)));
-        const rows=(resp.table.rows||[]).map(r=>{const o={}; cols.forEach((c,i)=>{const cell=r.c[i]; o[c]=cell ? (cell.f ?? cell.v ?? '') : ''}); return o;})
-          .filter(o=>Object.values(o).some(v=>String(v).trim()!==''));
-        state[key]=rows; resolve();
-      }catch(e){state.issues.push(`${sheetName}: ${e.message}`); state[key]=[]; resolve();}
-      finally{delete window[cb]; script.remove();}
-    };
-    const script=document.createElement('script');
-    script.onerror=()=>{state.issues.push(`${sheetName}: script load failed. Check sheet sharing/publish settings.`); state[key]=[]; delete window[cb]; script.remove(); resolve();};
-    const url=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json;responseHandler:${cb}&sheet=${encodeURIComponent(sheetName)}&tq=${encodeURIComponent('select *')}`;
-    script.src=url; document.body.appendChild(script);
+function loadSheet(key,sheetName){
+  return new Promise(resolve=>{
+    const cb="gviz_cb_"+key+"_"+Math.random().toString(36).slice(2);
+    const timeout=setTimeout(()=>{state.errors.push(`${sheetName}: load timed out`);cleanup();resolve([])},12000);
+    function cleanup(){clearTimeout(timeout);try{delete window[cb]}catch(e){window[cb]=undefined} const s=document.getElementById(cb); if(s)s.remove()}
+    window[cb]=json=>{try{if(json.status==="error")throw new Error(json.errors?.[0]?.detailed_message||"Google returned an error");const rows=getRowsFromGvizResponse(json);cleanup();resolve(rows)}catch(e){state.errors.push(`${sheetName}: ${e.message}`);cleanup();resolve([])}};
+    const script=document.createElement("script");script.id=cb;script.onerror=()=>{state.errors.push(`${sheetName}: script load failed`);cleanup();resolve([])};
+    script.src=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=responseHandler:${cb}&sheet=${encodeURIComponent(sheetName)}&tq=${encodeURIComponent("select *")}`;
+    document.body.appendChild(script);
   });
 }
-function makeTabs(){
-  const nav=document.getElementById('tabs');
-  nav.innerHTML=PAGES.map(([id,label],i)=>`<button class="tab ${i===0?'active':''}" data-page="${id}">${label}</button>`).join('');
-  nav.addEventListener('click',e=>{if(!e.target.matches('.tab'))return;document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));e.target.classList.add('active');document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.getElementById(e.target.dataset.page).classList.add('active')});
-}
-function table(rows, cols){
-  if(!rows.length)return '<div class="card empty">No data loaded yet.</div>';
-  return `<div class="table-wrap"><table><thead><tr>${cols.map(c=>`<th>${c.label}</th>`).join('')}</tr></thead><tbody>${rows.map(r=>`<tr>${cols.map(c=>`<td>${c.render?c.render(r):get(r,c.names)}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`;
+
+function renderTable(rows, columns){
+  if(!rows.length)return `<div class="card">No data loaded yet.</div>`;
+  return `<table><thead><tr>${columns.map(c=>`<th>${esc(c.label)}</th>`).join("")}</tr></thead><tbody>`+
+    rows.map(r=>`<tr>${columns.map(c=>`<td>${c.render?c.render(r):esc(val(r,c.keys||[c.label]))}</td>`).join("")}</tr>`).join("")+
+    `</tbody></table>`;
 }
 function latestReport(){
-  const rows=state.reports.filter(r=>String(get(r,['Show_On_Home'],'Yes')).toLowerCase()!=='no');
-  if(!rows.length)return null;
-  return rows[rows.length-1];
+  const rows=state.reports.filter(r=>clean(val(r,["Title"])) && clean(val(r,["Show_On_Home","Show On Home","ShowOnHome"])).toLowerCase()!=="no");
+  return rows[rows.length-1]||{};
 }
-function renderTrading(){
-  const league=state.league.slice().filter(r=>get(r,['Manager_Name','Manager','Team_Name']));
-  const leader=league.slice().sort((a,b)=>num(get(b,['Total_Points','Points']))-num(get(a,['Total_Points','Points'])))[0] || {};
-  const played=state.fixtures.filter(r=>String(get(r,['Status'])).toLowerCase()==='played').length;
-  const next=state.fixtures.find(r=>String(get(r,['Status'])).toLowerCase()!=='played') || {};
+function reportBody(r){
+  let body=clean(val(r,["Summary","Full_Report","Full Report","Report","Market_Report","Notes"]));
+  if(body)return body;
+  const skip=new Set(["reportid","date","stage","title","showonhome"]);
+  let best="";
+  Object.entries(r).forEach(([k,v])=>{const sv=clean(v); if(sv && !skip.has(normKey(k)) && sv.length>best.length) best=sv});
+  return best||"No report loaded yet.";
+}
+function fixtureScore(r){const a=clean(val(r,["A_Goals","A Goals","AGoals"]));const b=clean(val(r,["B_Goals","B Goals","BGoals"]));return (a!==""||b!=="")?`${a||0}-${b||0}`:"v"}
+function validLeagueRows(){return state.league.filter(r=>clean(val(r,["Manager_Name","Manager Name","Manager"]))||clean(val(r,["Team_Name","Team Name"])))}
+function leagueSorted(){
+  return validLeagueRows().sort((a,b)=>toNum(val(b,["Total_Points","Total Points","Points"]))-toNum(val(a,["Total_Points","Total Points","Points"])));
+}
+
+function renderHome(){
+  const standings=leagueSorted();
+  const leader=standings[0]||{};
+  const played=state.fixtures.filter(r=>slug(val(r,["Status"]))==="played").length;
+  const next=state.fixtures.find(r=>slug(val(r,["Status"]))!=="played")||{};
   const rep=latestReport();
-  const title=rep?get(rep,['Title'],'Latest Market Report'):'No report loaded yet';
-  const body=rep?get(rep,['Summary','Full_Report','Report','Notes'],'No report text entered yet.'):'No report loaded yet.';
-  const meta=rep?[get(rep,['Date']), get(rep,['Stage']), get(rep,['Report_ID'])].filter(Boolean).join(' • '):'';
-  document.getElementById('trading').innerHTML=`
-    <div class="grid">
-      <div class="card"><div class="label">Market Leader</div><div class="big">${get(leader,['Team_Name','Manager_Name','Manager'],'TBC')}</div><div class="small">${get(leader,['Total_Points','Points'],'0')} pts</div></div>
-      <div class="card"><div class="label">Fixtures Played</div><div class="big">${played}</div><div class="small">of ${state.fixtures.length||104}</div></div>
-      <div class="card"><div class="label">Next Fixture</div><div class="big" style="font-size:18px">${get(next,['Team_A','TeamA'],'TBC')} v ${get(next,['Team_B','TeamB'],'TBC')}</div><div class="small">${[get(next,['Date']),get(next,['Stage']),get(next,['Group','Round'])].filter(Boolean).join(' • ')}</div></div>
+  const repMeta=[val(rep,["Date"]),val(rep,["Stage"]),val(rep,["Report_ID","Report ID"])].filter(Boolean).join(" • ");
+  const top3=standings.slice(0,3);
+  const ticker = top3.map((r,i)=>`${i+1}. ${val(r,["Team_Name","Team Name"])||val(r,["Manager_Name","Manager Name"])} ${val(r,["Total_Points","Total Points","Points"])||0} pts`).join("  ·  ");
+
+  document.getElementById("home").innerHTML=`
+    <div class="hero">
+      <h2>The Trading Floor is Open</h2>
+      <p>Draft nations, watch the points move, and pretend this is investment strategy rather than football chaos in a suit.</p>
+      <div class="hero-actions">
+        <button class="cta" onclick="openSignup()">Join / Register Interest</button>
+        <button class="cta secondary" onclick="goPage('table')">View League Table</button>
+        <button class="cta secondary" onclick="goPage('fixtures')">Check Fixtures</button>
+      </div>
+      <div class="ticker">LIVE MARKET: ${esc(ticker || "No investors listed yet. The market awaits fresh victims.")}</div>
     </div>
-    <div class="card report-card"><div class="report-meta">${meta||'Latest Market Report'}</div><div class="report-title">${title}</div><div class="report-body">${body}</div></div>`;
+
+    <div class="grid">
+      <div class="card"><div class="kicker">Market Leader</div><div class="big">${esc(val(leader,["Team_Name","Team Name","Manager_Name","Manager Name"])||"TBC")}</div><div class="small">${esc(val(leader,["Total_Points","Total Points","Points"])||"0")} pts</div></div>
+      <div class="card"><div class="kicker">Fixtures Played</div><div class="big">${played}</div><div class="small">of ${state.fixtures.length||104}</div></div>
+      <div class="card"><div class="kicker">Next Fixture</div><div class="big" style="font-size:20px">${esc(val(next,["Team_A","Team A"])||"TBC")} <span class="small">v</span> ${esc(val(next,["Team_B","Team B"])||"TBC")}</div><div class="small">${esc([val(next,["Stage"]),val(next,["Group"]),val(next,["Round"])].filter(Boolean).join(" • "))}</div></div>
+    </div>
+
+    <div class="grid two">
+      <div class="card">
+        <div class="kicker">${esc(repMeta||"Latest Market Report")}</div>
+        <div class="report-title">${esc(val(rep,["Title"])||"Latest Market Report")}</div>
+        <div class="report-body">${esc(reportBody(rep))}</div>
+      </div>
+      <div class="card">
+        <div class="kicker">Top 3</div>
+        ${top3.length?top3.map((r,i)=>`<div class="nation-chip"><div><b>${i+1}. ${esc(val(r,["Team_Name","Team Name"])||val(r,["Manager_Name","Manager Name"]))}</b><div class="small">${esc(val(r,["Manager_Name","Manager Name"])||"")}</div></div><div class="points-burst">${esc(val(r,["Total_Points","Total Points","Points"])||0)}</div></div>`).join(""):"<div class='small'>No league data yet.</div>"}
+      </div>
+    </div>
+    <div class="debug"><b>Data check:</b> table ${state.league.length}, fixtures ${state.fixtures.length}, portfolios ${state.portfolios.length}, nations ${state.nations.length}, reports ${state.reports.length}, rules ${state.rules.length}<br>${state.errors.length?`<span class="err">${esc(state.errors.join(" | "))}</span>`:`<span class="ok">All data tables loaded.</span>`}</div>`;
 }
+
 function renderLeague(){
-  document.getElementById('league').innerHTML=`<div class="toolbar"><input class="search" data-filter="league" placeholder="Search table..."></div>`+table(state.league,[
-    {label:'Pos',names:['Position','Rank']},{label:'Manager',names:['Manager_Name','Manager']},{label:'Team',names:['Team_Name','Team']},{label:'Points',names:['Total_Points','Points']},{label:'Captain',names:['Captain_Nation','Captain']},{label:'Notes',names:['Notes']}
+  const rows=leagueSorted();
+  document.getElementById("table").innerHTML=renderTable(rows,[
+    {label:"Pos",render:r=>{const i=rows.indexOf(r)+1;return `<span class="pos ${i===1?'podium1':i===2?'podium2':i===3?'podium3':''}">${i}</span>`}},
+    {label:"Manager",keys:["Manager_Name","Manager Name","Manager"]},
+    {label:"Team",keys:["Team_Name","Team Name"]},
+    {label:"Points",keys:["Total_Points","Total Points","Points"]},
+    {label:"Captain",render:r=>clean(val(r,["Captain_Nation","Captain Nation","Captain"]))?badge(val(r,["Captain_Nation","Captain Nation","Captain"]),"captain"):""},
+    {label:"Notes",keys:["Notes"]}
   ]);
 }
+
 function renderFixtures(){
-  document.getElementById('fixtures').innerHTML=`<div class="toolbar"><input class="search" data-filter="fixtures" placeholder="Search fixtures..."></div>`+table(state.fixtures,[
-    {label:'Match',names:['Match_No','Match_ID']},{label:'Date',names:['Date']},{label:'Stage',names:['Stage']},{label:'Group/Round',names:['Group','Round']},
-    {label:'Fixture',names:[],render:r=>`${get(r,['Team_A','TeamA'])} <b>${get(r,['A_Goals'],'')}</b> - <b>${get(r,['B_Goals'],'')}</b> ${get(r,['Team_B','TeamB'])}`},
-    {label:'Status',names:['Status'],render:r=>{const s=get(r,['Status']);return `<span class="${String(s).toLowerCase()==='played'?'status-played':'status-scheduled'}">${s}</span>`}},
-    {label:'Notes',names:['Notes']}
+  const statuses=[...new Set(state.fixtures.map(r=>clean(val(r,["Status"]))).filter(Boolean))].sort();
+  const stages=[...new Set(state.fixtures.map(r=>clean(val(r,["Stage"]))).filter(Boolean))].sort();
+  const groups=[...new Set(state.fixtures.map(r=>clean(val(r,["Group"]))).filter(Boolean))].sort();
+  document.getElementById("fixtures").innerHTML=`
+    <div class="toolbar">
+      <select class="filter" id="fixtureStatus" onchange="applyFixtureFilters()">
+        <option value="Scheduled" selected>Scheduled only</option>
+        <option value="Played">Played only</option>
+        <option value="All">All fixtures</option>
+        ${statuses.filter(s=>!["Scheduled","Played"].includes(s)).map(s=>`<option>${esc(s)}</option>`).join("")}
+      </select>
+      <select class="filter" id="fixtureStage" onchange="applyFixtureFilters()"><option value="All">All stages</option>${stages.map(s=>`<option>${esc(s)}</option>`).join("")}</select>
+      <select class="filter" id="fixtureGroup" onchange="applyFixtureFilters()"><option value="All">All groups</option>${groups.map(s=>`<option>${esc(s)}</option>`).join("")}</select>
+      <input class="search" id="fixtureSearch" placeholder="Search fixtures..." oninput="applyFixtureFilters()">
+    </div>
+    <div id="fixtureTable"></div>`;
+  applyFixtureFilters();
+}
+function applyFixtureFilters(){
+  const status=document.getElementById("fixtureStatus")?.value||"Scheduled";
+  const stage=document.getElementById("fixtureStage")?.value||"All";
+  const group=document.getElementById("fixtureGroup")?.value||"All";
+  const q=(document.getElementById("fixtureSearch")?.value||"").toLowerCase();
+  let rows=state.fixtures.filter(r=>{
+    const rs=clean(val(r,["Status"]))||"Scheduled";
+    const okS=status==="All"||rs===status;
+    const okSt=stage==="All"||clean(val(r,["Stage"]))===stage;
+    const okG=group==="All"||clean(val(r,["Group"]))===group;
+    const okQ=!q||Object.values(r).join(" ").toLowerCase().includes(q);
+    return okS&&okSt&&okG&&okQ;
+  });
+  document.getElementById("fixtureTable").innerHTML=renderTable(rows,[
+    {label:"Match",keys:["Match_No","Match No","Match_ID"]},
+    {label:"Date",keys:["Date","UK_Date","UK Date"]},
+    {label:"Stage",keys:["Stage"]},
+    {label:"Group/Round",render:r=>esc([val(r,["Group"]),val(r,["Round"])].filter(Boolean).join(" "))},
+    {label:"Fixture",render:r=>`${esc(val(r,["Team_A","Team A"]))} <b>${esc(fixtureScore(r))}</b> ${esc(val(r,["Team_B","Team B"]))}`},
+    {label:"Status",render:r=>statusBadge(val(r,["Status"])||"Scheduled")},
+    {label:"Notes",keys:["Notes"]}
   ]);
 }
+
 function renderPortfolios(){
-  document.getElementById('portfolios').innerHTML=`<div class="toolbar"><input class="search" data-filter="portfolios" placeholder="Search portfolios..."></div>`+table(state.portfolios,[
-    {label:'Manager',names:['Manager_Name','Owner_Name','Manager']},{label:'Team',names:['Team_Name','Team']},{label:'Nation',names:['Nation']},{label:'Slot',names:['Draft_Slot','Portfolio_Slot']},{label:'Captain',names:['Captain','Captain?']},{label:'Points',names:['Total_Points','Points']},{label:'Status',names:['Status']}
-  ]);
+  const rows=state.portfolios.filter(r=>clean(val(r,["Nation"])) || clean(val(r,["Manager_Name","Manager Name","Owner_Name","Owner Name"])));
+  const groups={};
+  rows.forEach(r=>{
+    const key=clean(val(r,["Manager_Name","Manager Name","Owner_Name","Owner Name"]))||"Unassigned";
+    if(!groups[key]) groups[key]=[];
+    groups[key].push(r);
+  });
+  document.getElementById("portfolios").innerHTML=`
+    <div class="toolbar"><input class="search" id="portfolioSearch" placeholder="Search portfolios..." oninput="renderPortfolioCards(this.value)"></div>
+    <div id="portfolioCards"></div>`;
+  renderPortfolioCards("");
 }
+function renderPortfolioCards(filter=""){
+  const f=filter.toLowerCase();
+  const rows=state.portfolios.filter(r=>{
+    const hasNation=clean(val(r,["Nation"]))!=="";
+    const hasManager=clean(val(r,["Manager_Name","Manager Name","Owner_Name","Owner Name"]))!=="";
+    return (hasNation||hasManager) && (!f||Object.values(r).join(" ").toLowerCase().includes(f));
+  });
+  const groups={};
+  rows.forEach(r=>{
+    const manager=clean(val(r,["Manager_Name","Manager Name","Owner_Name","Owner Name"]))||"Unassigned";
+    if(!groups[manager]) groups[manager]=[];
+    groups[manager].push(r);
+  });
+  document.getElementById("portfolioCards").innerHTML=`<div class="portfolio-grid">`+Object.entries(groups).map(([manager,items])=>{
+    const first=items[0]||{};
+    const total=items.reduce((a,r)=>a+toNum(val(r,["Total_Points","Total Points","Points"])),0);
+    return `<div class="card manager-card">
+      <h3>${esc(manager)}</h3>
+      <div class="small">${esc(val(first,["Team_Name","Team Name"])||"")}</div>
+      <div class="points-burst">${total} pts</div>
+      <div class="nation-list">
+        ${items.filter(r=>clean(val(r,["Nation"]))).map(r=>`<div class="nation-chip"><div><b>${esc(val(r,["Nation"]))}</b><div>${tierBadge(val(r,["Draft_Tier","Draft Tier","Tier","Slot"]))} ${slug(val(r,["Captain","Captain?"]))==="yes"?badge("Captain","captain"):""}</div></div><b>${esc(val(r,["Total_Points","Total Points","Points"])||0)}</b></div>`).join("") || "<div class='small'>No nations drafted yet.</div>"}
+      </div>
+    </div>`;
+  }).join("")+`</div>`;
+}
+
 function renderNations(){
-  document.getElementById('nations').innerHTML=`<div class="toolbar"><input class="search" data-filter="nations" placeholder="Search nations..."></div>`+table(state.nations,[
-    {label:'Nation',names:['Nation']},{label:'Group',names:['Group']},{label:'Tier',names:['Draft_Tier','Tier']},{label:'Owner',names:['Owner_Name','Owner_Manager_Name','Owner','Drafted_By']},{label:'Captain',names:['Captain','Captain?']},{label:'Points',names:['Total_Points','Points']},{label:'Status',names:['Status']},{label:'Notes',names:['Notes']}
+  const tiers=[...new Set(state.nations.map(r=>clean(val(r,["Draft_Tier","Draft Tier","Tier"]))).filter(Boolean))].sort();
+  const groups=[...new Set(state.nations.map(r=>clean(val(r,["Group"]))).filter(Boolean))].sort();
+  const owners=[...new Set(state.nations.map(r=>clean(val(r,["Owner_Name","Owner Name","Owner","Manager_Name","Manager Name"]))).filter(Boolean))].sort();
+  const statuses=[...new Set(state.nations.map(r=>clean(val(r,["Status"]))).filter(Boolean))].sort();
+  document.getElementById("nations").innerHTML=`
+    <div class="toolbar">
+      <input class="search" id="nationSearch" placeholder="Search nations..." oninput="applyNationFilters()">
+      <select class="filter" id="nationTier" onchange="applyNationFilters()"><option value="All">All tiers</option>${tiers.map(s=>`<option>${esc(s)}</option>`).join("")}</select>
+      <select class="filter" id="nationGroup" onchange="applyNationFilters()"><option value="All">All groups</option>${groups.map(s=>`<option>${esc(s)}</option>`).join("")}</select>
+      <select class="filter" id="nationOwner" onchange="applyNationFilters()"><option value="All">All owners</option><option value="Unowned">Unowned only</option>${owners.map(s=>`<option>${esc(s)}</option>`).join("")}</select>
+      <select class="filter" id="nationStatus" onchange="applyNationFilters()"><option value="All">All statuses</option>${statuses.map(s=>`<option>${esc(s)}</option>`).join("")}</select>
+    </div>
+    <div id="nationTable"></div>`;
+  applyNationFilters();
+}
+function applyNationFilters(){
+  const q=(document.getElementById("nationSearch")?.value||"").toLowerCase();
+  const tier=document.getElementById("nationTier")?.value||"All";
+  const group=document.getElementById("nationGroup")?.value||"All";
+  const owner=document.getElementById("nationOwner")?.value||"All";
+  const status=document.getElementById("nationStatus")?.value||"All";
+  const rows=state.nations.filter(r=>{
+    const rt=clean(val(r,["Draft_Tier","Draft Tier","Tier"]));
+    const rg=clean(val(r,["Group"]));
+    const ro=clean(val(r,["Owner_Name","Owner Name","Owner","Manager_Name","Manager Name"]));
+    const rs=clean(val(r,["Status"]));
+    return (!q||Object.values(r).join(" ").toLowerCase().includes(q)) &&
+      (tier==="All"||rt===tier) && (group==="All"||rg===group) &&
+      (owner==="All"||(owner==="Unowned"?!ro:ro===owner)) && (status==="All"||rs===status);
+  });
+  document.getElementById("nationTable").innerHTML=renderTable(rows,[
+    {label:"Nation",keys:["Nation"]},
+    {label:"Group",keys:["Group"]},
+    {label:"Tier",render:r=>tierBadge(val(r,["Draft_Tier","Draft Tier","Tier"]))},
+    {label:"Owner",keys:["Owner_Name","Owner Name","Owner","Manager_Name","Manager Name"]},
+    {label:"Captain",render:r=>slug(val(r,["Captain","Captain?"]))==="yes"?badge("Captain","captain"):esc(val(r,["Captain","Captain?"]))},
+    {label:"Points",keys:["Total_Points","Total Points","Points"]},
+    {label:"Status",render:r=>statusBadge(val(r,["Status"]))},
+    {label:"Notes",keys:["Notes"]}
   ]);
 }
+
 function renderReports(){
-  const rows=state.reports.slice().reverse();
-  document.getElementById('reports').innerHTML=rows.length?rows.map(r=>`<div class="card report-card"><div class="report-meta">${[get(r,['Date']),get(r,['Stage']),get(r,['Report_ID'])].filter(Boolean).join(' • ')}</div><div class="report-title">${get(r,['Title'],'Market Report')}</div><div class="report-body">${get(r,['Full_Report','Summary','Report','Notes'],'No report text entered yet.')}</div></div>`).join(''):'<div class="card empty">No market reports loaded yet.</div>';
+  const rows=[...state.reports].reverse();
+  document.getElementById("reports").innerHTML=rows.length?rows.map(r=>`<div class="card" style="margin-bottom:12px"><div class="kicker">${esc([val(r,["Date"]),val(r,["Stage"]),val(r,["Report_ID","Report ID"])].filter(Boolean).join(" • "))}</div><div class="report-title">${esc(val(r,["Title"])||"Market Report")}</div><div class="report-body">${esc(reportBody(r))}</div></div>`).join(""):`<div class="card">No market reports loaded yet.</div>`;
 }
+
 function renderRules(){
-  document.getElementById('rules').innerHTML=table(state.rules,[{label:'Category',names:['Category','Rule_Type']},{label:'Rule',names:['Rule','Event']},{label:'Points',names:['Points']},{label:'Notes',names:['Notes']}]);
+  document.getElementById("rules").innerHTML=`
+  <div class="rules-wrap">
+    <div class="card">
+      <div class="kicker">Quick Rules</div>
+      <h2 style="margin:8px 0 10px">How to Play</h2>
+      <ul class="rules-list">
+        <li>Each manager drafts a portfolio of World Cup nations.</li>
+        <li>Nations score from real World Cup results: wins, draws, clean sheets, 3+ goals, big wins, upsets and progression.</li>
+        <li>Nations lose points for red cards, own goals, missed penalties, heavy defeats, conceding 4+, and other disasters.</li>
+        <li>Captain nations boost scoring based on the agreed rules.</li>
+        <li>The league table is ranked by total points. Highest total wins the market.</li>
+        <li>The Commissioner settles disputes. Bribes are not accepted unless very funny.</li>
+      </ul>
+      <a class="download" href="#" onclick="downloadRules();return false;">Download Full Rules</a>
+    </div>
+    <div>${renderTable(state.rules,[
+      {label:"Category",keys:["Category","Section"]},
+      {label:"Rule",keys:["Rule","Event"]},
+      {label:"Points",keys:["Points"]},
+      {label:"Notes",keys:["Notes"]}
+    ])}</div>
+  </div>`;
 }
-function addSearch(){
-  document.querySelectorAll('.search').forEach(input=>input.addEventListener('input',e=>{
-    const page=e.target.closest('.page'); const q=e.target.value.toLowerCase();
-    page.querySelectorAll('tbody tr').forEach(tr=>{tr.style.display=tr.textContent.toLowerCase().includes(q)?'':'none'});
-  }));
+
+function downloadRules(){
+  const text=`WORLD CUP STOCK EXCHANGE - FULL RULES
+
+1. Overview
+Each manager drafts a portfolio of World Cup nations. Nations earn and lose points based on real tournament results and events.
+
+2. Match Scoring
+Win +5
+Draw +2
+Clean sheet +2
+Score 3+ goals +2
+Win by 3+ goals +3
+Lose by 3+ goals -3
+Concede 4+ goals -3
+Red card -2
+Own goal -2
+Missed penalty -2
+Comeback win +3
+Late winner 85+ +3
+Upset winner +5
+
+3. Captains and Boosters
+Captain and booster scoring follows the settings agreed before the tournament starts.
+
+4. Updates
+Scores are updated in the master Google Sheet. The dashboard displays the current standings, fixtures, portfolios and reports.
+
+5. Commissioner
+The Commissioner has final say on disputes, unclear bonuses and general spreadsheet nonsense.`;
+  const blob=new Blob([text],{type:"text/plain"});
+  const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="World_Cup_Stock_Exchange_Full_Rules.txt";a.click();URL.revokeObjectURL(a.href);
 }
-function renderDebug(){
-  document.getElementById('debug').innerHTML=`<b>Data check:</b> Loaded rows — table: ${state.league.length}, fixtures: ${state.fixtures.length}, portfolios: ${state.portfolios.length}, nations: ${state.nations.length}, reports: ${state.reports.length}, rules: ${state.rules.length}<br>${state.issues.length?'<span class="error">Load issues: '+state.issues.join(' | ')+'</span>':'<span class="ok">All data tables loaded.</span>'}`;
+
+function openSignup(){
+  const body=document.getElementById("signupBody");
+  if(SIGNUP_FORM_URL){
+    const url=SIGNUP_FORM_URL.includes("embedded=true")?SIGNUP_FORM_URL:SIGNUP_FORM_URL+(SIGNUP_FORM_URL.includes("?")?"&":"?")+"embedded=true";
+    body.innerHTML=`<iframe src="${esc(url)}">Loading…</iframe>`;
+  }else{
+    body.innerHTML=`<div style="padding:18px"><h2>Sign-up form not connected yet</h2><p class="small">Create a Google Form, send me the public link, and I’ll wire it into this button so it opens inside the site.</p><p>Suggested form fields:</p><ul><li>Name</li><li>Team / investment company name</li><li>WhatsApp name</li><li>Do you understand your picks may ruin your week?</li></ul></div>`;
+  }
+  document.getElementById("signupModal").style.display="block";
 }
-async function init(){
-  makeTabs();
-  await Promise.all(Object.entries(SHEETS).map(([k,s])=>loadSheet(k,s)));
-  renderTrading(); renderLeague(); renderFixtures(); renderPortfolios(); renderNations(); renderReports(); renderRules(); renderDebug(); addSearch();
+function closeSignup(){document.getElementById("signupModal").style.display="none"}
+
+function goPage(page){
+  document.querySelector(`button[data-page="${page}"]`)?.click();
 }
-init();
+
+document.querySelectorAll("button.tab").forEach(btn=>{
+  btn.addEventListener("click",()=>{
+    document.querySelectorAll("button.tab").forEach(b=>b.classList.remove("active"));
+    document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+    btn.classList.add("active");
+    document.getElementById(btn.dataset.page).classList.add("active");
+    document.querySelector("nav").classList.remove("open");
+  });
+});
+
+function renderAll(){renderHome();renderLeague();renderFixtures();renderPortfolios();renderNations();renderReports();renderRules();}
+
+(async function init(){
+  const entries=Object.entries(TABLES);
+  const results=await Promise.all(entries.map(([key,name])=>loadSheet(key,name)));
+  entries.forEach(([key],i)=>state[key]=results[i]);
+  renderAll();
+})();
 </script>
 </body>
 </html>
