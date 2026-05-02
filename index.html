@@ -256,6 +256,42 @@
       padding:11px 14px;font-weight:1000;margin-top:10px;
     }
 
+
+    .floating-actions{
+      position:fixed;
+      right:18px;
+      bottom:18px;
+      z-index:45;
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+      align-items:flex-end;
+    }
+    .float-btn{
+      display:flex;
+      align-items:center;
+      gap:9px;
+      border:1px solid rgba(255,255,255,.18);
+      border-radius:999px;
+      padding:12px 14px;
+      color:#06101d;
+      text-decoration:none;
+      font-weight:1000;
+      box-shadow:0 12px 30px rgba(0,0,0,.35);
+      cursor:pointer;
+      transition:.15s transform,.15s filter;
+      font-size:14px;
+    }
+    .float-btn:hover{transform:translateY(-2px);filter:brightness(1.08)}
+    .float-vidi{background:linear-gradient(135deg,var(--cyan),#9dffe7)}
+    .float-whatsapp{background:linear-gradient(135deg,#25D366,#b9ffcf)}
+    .float-icon{
+      width:22px;height:22px;border-radius:50%;
+      background:rgba(6,16,29,.13);
+      display:grid;place-items:center;
+      font-size:14px;
+    }
+
     .form-modal{
       display:none;position:fixed;inset:0;z-index:50;background:rgba(0,0,0,.72);
       padding:20px;
@@ -264,6 +300,28 @@
     .form-head{display:flex;justify-content:space-between;align-items:center;padding:12px 14px;border-bottom:1px solid var(--line)}
     .form-head button{background:rgba(255,255,255,.08);color:var(--text);border:1px solid var(--line);border-radius:10px;padding:8px 10px;cursor:pointer}
     iframe{width:100%;height:660px;border:0;background:white}
+
+    .vidi-modal{
+      display:none;position:fixed;inset:0;z-index:60;background:rgba(0,0,0,.78);
+      padding:18px;
+    }
+    .vidi-box{
+      max-width:980px;margin:28px auto;background:var(--panel);
+      border:1px solid var(--line);border-radius:18px;overflow:hidden;box-shadow:var(--shadow);
+    }
+    .vidi-head{
+      display:flex;justify-content:space-between;align-items:center;gap:12px;
+      padding:12px 14px;border-bottom:1px solid var(--line);
+      background:linear-gradient(135deg,rgba(89,241,255,.16),rgba(255,62,165,.08));
+    }
+    .vidi-head button{
+      background:rgba(255,255,255,.08);color:var(--text);border:1px solid var(--line);
+      border-radius:10px;padding:8px 10px;cursor:pointer;font-weight:900;
+    }
+    .vidi-body{
+      background:#ffffff;color:#111;padding:10px;min-height:540px;max-height:76vh;overflow:auto;
+    }
+
     .debug{display:none;font-size:12px;color:#8fd7ff;margin-top:14px}.show-debug .debug{display:block}.ok{color:var(--green)}.err{color:var(--red)}
 
     @media(max-width:820px){
@@ -314,6 +372,36 @@
   <section id="reports" class="page"></section>
   <section id="rules" class="page"></section>
 </main>
+
+<div class="floating-actions">
+  <button class="float-btn float-vidi" onclick="openVidiprinter()" title="Open live vidiprinter">
+    <span class="float-icon">⚡</span>
+    <span>Live Vidiprinter</span>
+  </button>
+  <a class="float-btn float-whatsapp" href="https://chat.whatsapp.com/IOgPcuQc7BxI0Q3pXG3Iyx" target="_blank" rel="noopener" title="Join WhatsApp group">
+    <span class="float-icon">💬</span>
+    <span>WhatsApp Group</span>
+  </a>
+</div>
+
+
+
+
+<div class="vidi-modal" id="vidiModal">
+  <div class="vidi-box">
+    <div class="vidi-head">
+      <div>
+        <b>Live World Cup Vidiprinter</b>
+        <div class="small">Live feed provided by Football Web Pages.</div>
+      </div>
+      <button onclick="closeVidiprinter()">Close</button>
+    </div>
+    <div class="vidi-body">
+      <div id="vidiprinterMount"></div>
+    </div>
+  </div>
+</div>
+
 
 <div class="form-modal" id="signupModal">
   <div class="form-box">
@@ -627,6 +715,63 @@ function renderRules(){
 
 function downloadRules(){
   window.open("world_cup_stock_exchange_full_rules.pdf", "_blank");
+}
+
+
+function loadFootballWebPagesEmbed(){
+  return new Promise((resolve, reject) => {
+    const old = document.querySelector('script[data-fwp-embed-script="true"]');
+    if (old) old.remove();
+
+    const script = document.createElement("script");
+    script.src = "https://www.footballwebpages.co.uk/embed.js?cachebust=" + Date.now();
+    script.defer = true;
+    script.setAttribute("data-fwp-embed-script", "true");
+    script.onload = resolve;
+    script.onerror = reject;
+    document.body.appendChild(script);
+  });
+}
+
+function openVidiprinter(){
+  const modal = document.getElementById("vidiModal");
+  const mount = document.getElementById("vidiprinterMount");
+  modal.style.display = "block";
+
+  mount.innerHTML = `
+    <div class="fwp-embed"
+      data-background-color="#07111f"
+      data-color="#f7fbff"
+      data-border-color="#28405f"
+      data-heading-color="#59f1ff"
+      data-hover-background-color="#101a33"
+      data-goal-background-color="#59f1ff"
+      data-goal-color="#06101d"
+      data-half-time-full-time-background-color="#ffd166"
+      data-half-time-full-time-color="#06101d"
+      data-info-background-color="#151f3d"
+      data-info-color="#f7fbff"
+      data-red-card-background-color="#ff5f73"
+      data-red-card-color="#06101d"
+      data-url="world-cup/vidiprinter"></div>
+  `;
+
+  loadFootballWebPagesEmbed().catch(() => {
+    mount.innerHTML = `
+      <div style="padding:18px;color:#06101d;background:#fff;border-radius:10px">
+        <h3>Vidiprinter could not load inside the pop-up.</h3>
+        <p>Open it directly here:</p>
+        <a href="https://www.footballwebpages.co.uk/world-cup/vidiprinter" target="_blank" rel="noopener">
+          Open Football Web Pages Vidiprinter
+        </a>
+      </div>`;
+  });
+}
+
+function closeVidiprinter(){
+  document.getElementById("vidiModal").style.display="none";
+  const mount = document.getElementById("vidiprinterMount");
+  if (mount) mount.innerHTML = "";
 }
 
 function openSignup(){
