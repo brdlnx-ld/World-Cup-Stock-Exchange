@@ -1,21 +1,12 @@
-# World Cup Stock Exchange dashboard v21
+# World Cup Stock Exchange dashboard v22
 
 Changes:
-- Sign-up is now closed.
-- Home page now shows Draft Week status instead of a sign-up CTA.
-- Sign-Up Closed button opens a branded info modal.
-- Added Draft Week info card:
-  - daily windows 12:00–22:00
-  - Saturday AM ChatGPT team allocation
-  - Saturday PM Supplemental Draft
-  - Captain deadline
-- Mobile improvements:
-  - cleaner two-column mobile menu
-  - better mobile hero/buttons
-  - less intrusive floating buttons
-  - improved table/filter spacing
-  - better modal sizing
+- Adds new Draft tab.
+- Reads ticket windows from Public_Draft_Tickets.
+- Ticket buttons only activate during scheduled windows.
+- Cleaner home page.
+- Keeps logos, WhatsApp button, vidiprinter button and rules PDF.
 
-Upload/replace in GitHub repo root:
+Upload/replace:
 - index.html
 - world_cup_stock_exchange_full_rules.pdf

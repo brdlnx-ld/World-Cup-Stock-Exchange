@@ -123,44 +123,6 @@
     }
     .hero h2{font-size:28px;margin:0 0 4px}
     .hero p{margin:0;color:var(--muted)}
-
-    .status-strip{
-      display:grid;
-      grid-template-columns:1.1fr .9fr;
-      gap:12px;
-      margin-top:14px;
-    }
-    .status-panel{
-      border:1px solid rgba(255,209,102,.28);
-      background:linear-gradient(135deg,rgba(255,209,102,.13),rgba(255,62,165,.08));
-      border-radius:16px;
-      padding:14px;
-    }
-    .status-pill{
-      display:inline-flex;
-      align-items:center;
-      border-radius:999px;
-      padding:7px 10px;
-      font-weight:1000;
-      font-size:12px;
-      color:#06101d;
-      background:linear-gradient(135deg,var(--gold),#fff2a8);
-      margin-bottom:9px;
-    }
-    .draft-list{
-      display:grid;
-      grid-template-columns:repeat(2,minmax(0,1fr));
-      gap:8px;
-      margin-top:10px;
-    }
-    .draft-item{
-      background:rgba(255,255,255,.055);
-      border:1px solid rgba(255,255,255,.09);
-      border-radius:12px;
-      padding:9px;
-      font-size:13px;
-    }
-
     .hero-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
     .cta{
       border:0;border-radius:14px;padding:12px 16px;font-weight:1000;cursor:pointer;
@@ -188,6 +150,45 @@
       border-radius:14px;padding:10px 12px;overflow:hidden;
       color:#d9fbff;font-weight:800;
     }
+
+
+    .draft-hero-card{
+      border:1px solid rgba(255,209,102,.35);
+      background:linear-gradient(135deg,rgba(255,209,102,.13),rgba(89,241,255,.09));
+      border-radius:18px;
+      padding:16px;
+      box-shadow:var(--shadow);
+      margin-bottom:14px;
+    }
+    .ticket-grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+      gap:12px;
+      margin-top:12px;
+    }
+    .ticket-card{
+      background:linear-gradient(180deg,rgba(21,31,61,.92),rgba(12,21,42,.92));
+      border:1px solid var(--line);
+      border-radius:16px;
+      padding:14px;
+      box-shadow:var(--shadow);
+    }
+    .ticket-card.live{border-color:rgba(88,242,143,.55);box-shadow:0 0 0 1px rgba(88,242,143,.18), var(--shadow)}
+    .ticket-card.next{border-color:rgba(255,209,102,.45)}
+    .ticket-meta{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0 10px}
+    .ticket-btn{
+      display:inline-block;
+      text-decoration:none;
+      border-radius:12px;
+      padding:11px 13px;
+      font-weight:1000;
+      margin-top:10px;
+      color:#06101d;
+      background:linear-gradient(135deg,var(--green),#b8ffd0);
+    }
+    .ticket-btn.disabled{pointer-events:none;color:var(--muted);background:rgba(255,255,255,.07);border:1px solid var(--line)}
+    .quick-rules-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin-top:12px}
+    .quick-rule{background:rgba(255,255,255,.045);border:1px solid rgba(255,255,255,.08);border-radius:13px;padding:10px}
 
     .toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:0 0 12px}
     input.search, select.filter{
@@ -369,20 +370,7 @@
       .logo{width:40px;height:40px;border-radius:12px}
       .menuToggle{display:block}
       nav{display:none}
-      nav.open{
-        display:grid;
-        grid-template-columns:1fr 1fr;
-        position:fixed;
-        left:12px;
-        right:12px;
-        top:74px;
-        background:rgba(5,8,20,.97);
-        border:1px solid var(--line);
-        border-radius:18px;
-        padding:12px;
-        box-shadow:var(--shadow);
-        z-index:40;
-      }
+      nav.open{display:grid;grid-template-columns:1fr 1fr;position:fixed;left:12px;right:12px;top:74px;background:rgba(5,8,20,.97);border:1px solid var(--line);border-radius:18px;padding:12px;box-shadow:var(--shadow);z-index:40}
       button.tab{width:100%;text-align:center;padding:11px 10px;font-size:13px}
       main{padding:14px 12px 96px}
       .hero{padding:16px;border-radius:18px}
@@ -390,8 +378,7 @@
       .hero p{font-size:14px;line-height:1.45}
       .hero-actions{display:grid;grid-template-columns:1fr;gap:9px}
       .cta,.cta.secondary{width:100%;text-align:center}
-      .grid,.grid.two,.rules-wrap,.status-strip{grid-template-columns:1fr}
-      .draft-list{grid-template-columns:1fr}
+      .grid,.grid.two,.rules-wrap{grid-template-columns:1fr}
       .card{padding:13px;border-radius:15px}
       .big{font-size:25px}
       .report-title{font-size:19px}
@@ -403,15 +390,9 @@
       input.search, select.filter{width:100%;min-width:0}
       .portfolio-grid{grid-template-columns:1fr}
       .team-cell{min-width:0}
-      .floating-actions{
-        left:10px;
-        right:10px;
-        bottom:10px;
-        display:grid;
-        grid-template-columns:1fr 1fr;
-        gap:8px;
-        align-items:stretch;
-      }
+      .ticket-grid{grid-template-columns:1fr}
+      .quick-rules-grid{grid-template-columns:1fr}
+      .floating-actions{left:10px;right:10px;bottom:10px;display:grid;grid-template-columns:1fr 1fr;gap:8px;align-items:stretch}
       .float-btn{justify-content:center;padding:11px 9px;font-size:12px}
       .float-icon{width:20px;height:20px}
       .vidi-modal{padding:8px}
@@ -436,6 +417,7 @@
   </div>
   <nav>
     <button class="tab active" data-page="home">Trading Floor</button>
+    <button class="tab" data-page="draft">Draft</button>
     <button class="tab" data-page="table">League Table</button>
     <button class="tab" data-page="fixtures">Fixtures</button>
     <button class="tab" data-page="portfolios">Portfolios</button>
@@ -448,6 +430,7 @@
 
 <main>
   <section id="home" class="page active"></section>
+  <section id="draft" class="page"></section>
   <section id="table" class="page"></section>
   <section id="fixtures" class="page"></section>
   <section id="portfolios" class="page"></section>
@@ -517,9 +500,10 @@ const TABLES = {
   portfolios: "Public_Portfolios",
   nations: "Public_Nations",
   reports: "Public_Market_Reports",
+  draftTickets: "Public_Draft_Tickets",
   rules: "Public_Rules"
 };
-const state = { league:[], fixtures:[], portfolios:[], nations:[], reports:[], rules:[], errors:[] };
+const state = { league:[], fixtures:[], portfolios:[], nations:[], reports:[], draftTickets:[], rules:[], errors:[] };
 
 function normKey(k){return String(k??"").replace(/\uFEFF/g,"").trim().toLowerCase().replace(/[^a-z0-9]/g,"")}
 function val(row,names){for(const name of names){const t=normKey(name);for(const k of Object.keys(row)){if(normKey(k)===t)return row[k]}}return""}
@@ -600,30 +584,13 @@ function renderHome(){
   document.getElementById("home").innerHTML=`
     <div class="hero">
       <h2>Sign-Up Closed — Draft Week Active</h2>
-      <p>The entry window has closed. The market now moves into Draft Week: daily ticket windows, nation pools, AI allocation, and one final Supplemental Draft to complete every portfolio.</p>
+      <p>The entry window has closed. The market now moves into Draft Week. Use the Draft tab for live ticket windows, pool links, AI allocation and Supplemental Draft info.</p>
       <div class="hero-actions">
         <button class="cta" onclick="showSignupClosed()">Sign-Up Closed</button>
-        <button class="cta secondary" onclick="scrollToDraftInfo()">Draft Week Info</button>
         <button class="cta secondary" onclick="goPage('table')">View League Table</button>
         <button class="cta secondary" onclick="goPage('fixtures')">Check Fixtures</button>
       </div>
       <div class="ticker">LIVE MARKET: ${esc(ticker || "No investors listed yet. The market awaits fresh victims.")}</div>
-      <div class="status-strip" id="draftInfo">
-        <div class="status-panel">
-          <span class="status-pill">SIGN-UP CLOSED</span>
-          <div class="report-title" style="margin:0 0 6px">Draft Week is now live</div>
-          <div class="small">Daily draft ticket windows run from <b>12:00 to 22:00</b>. Teams submit tickets from the active nation pool. Tickets are processed first come, first served by timestamp.</div>
-        </div>
-        <div class="status-panel">
-          <span class="status-pill">FINAL CLEAN-UP</span>
-          <div class="draft-list">
-            <div class="draft-item"><b>Mon–Fri</b><br><span class="small">5 ticket windows</span></div>
-            <div class="draft-item"><b>Sat AM</b><br><span class="small">ChatGPT team allocation</span></div>
-            <div class="draft-item"><b>Sat PM</b><br><span class="small">Supplemental Draft</span></div>
-            <div class="draft-item"><b>10/06 23:59</b><br><span class="small">Captain deadline</span></div>
-          </div>
-        </div>
-      </div>
     </div>
 
     <div class="grid">
@@ -643,7 +610,7 @@ function renderHome(){
         ${top3.length?top3.map((r,i)=>`<div class="nation-chip"><div style="display:flex;align-items:center;gap:10px"><span class="pos ${i===0?'podium1':i===1?'podium2':i===2?'podium3':''}">${i+1}</span>${logoImg(r,"small")}<div><b>${esc(val(r,["Team_Name","Team Name"])||val(r,["Manager_Name","Manager Name"]))}</b><div class="small">${esc(val(r,["Manager_Name","Manager Name"])||"")}</div></div></div><div class="points-burst">${esc(val(r,["Total_Points","Total Points","Points"])||0)}</div></div>`).join(""):"<div class='small'>No league data yet.</div>"}
       </div>
     </div>
-    <div class="debug"><b>Data check:</b> table ${state.league.length}, fixtures ${state.fixtures.length}, portfolios ${state.portfolios.length}, nations ${state.nations.length}, reports ${state.reports.length}, rules ${state.rules.length}<br>${state.errors.length?`<span class="err">${esc(state.errors.join(" | "))}</span>`:`<span class="ok">All data tables loaded.</span>`}</div>`;
+    <div class="debug"><b>Data check:</b> table ${state.league.length}, fixtures ${state.fixtures.length}, portfolios ${state.portfolios.length}, nations ${state.nations.length}, reports ${state.reports.length}, draft tickets ${state.draftTickets.length}, rules ${state.rules.length}<br>${state.errors.length?`<span class="err">${esc(state.errors.join(" | "))}</span>`:`<span class="ok">All data tables loaded.</span>`}</div>`;
 }
 
 function renderLeague(){
@@ -788,6 +755,112 @@ function renderReports(){
   document.getElementById("reports").innerHTML=rows.length?rows.map(r=>`<div class="card" style="margin-bottom:12px"><div class="kicker">${esc([val(r,["Date"]),val(r,["Stage"]),val(r,["Report_ID","Report ID"])].filter(Boolean).join(" • "))}</div><div class="report-title">${esc(val(r,["Title"])||"Market Report")}</div><div class="report-body">${esc(reportBody(r))}</div></div>`).join(""):`<div class="card">No market reports loaded yet.</div>`;
 }
 
+
+function parseTicketDate(v){
+  const s = clean(v);
+  if(!s) return null;
+  const d = new Date(s);
+  return isNaN(d.getTime()) ? null : d;
+}
+function formatTicketDate(d){
+  if(!d) return "TBC";
+  return d.toLocaleString("en-GB", { weekday:"short", day:"2-digit", month:"short", hour:"2-digit", minute:"2-digit", hour12:false });
+}
+function ticketStatus(row){
+  const now = new Date();
+  const open = parseTicketDate(val(row,["Open_DateTime","Open DateTime","Open"]));
+  const close = parseTicketDate(val(row,["Close_DateTime","Close DateTime","Close"]));
+  if(!open || !close) return {label:"Info", live:false, future:false, closed:false};
+  if(now < open) return {label:"Not Open", live:false, future:true, closed:false};
+  if(now >= open && now <= close) return {label:"Live", live:true, future:false, closed:false};
+  return {label:"Closed", live:false, future:false, closed:true};
+}
+function nextLiveOrUpcomingTicket(){
+  const rows = state.draftTickets.filter(r=>clean(val(r,["Title"])));
+  const live = rows.find(r=>ticketStatus(r).live);
+  if(live) return live;
+  const upcoming = rows.filter(r=>ticketStatus(r).future).sort((a,b)=>parseTicketDate(val(a,["Open_DateTime"])) - parseTicketDate(val(b,["Open_DateTime"])))[0];
+  return upcoming || rows[rows.length-1] || {};
+}
+function renderTicketCard(r, highlight=false){
+  const st = ticketStatus(r);
+  const open = parseTicketDate(val(r,["Open_DateTime","Open DateTime","Open"]));
+  const close = parseTicketDate(val(r,["Close_DateTime","Close DateTime","Close"]));
+  const url = clean(val(r,["Form_URL","Form URL","URL"]));
+  const title = clean(val(r,["Title"])) || "Draft Ticket";
+  const type = clean(val(r,["Type"])) || "Draft";
+  const pool = clean(val(r,["Pool"])) || "";
+  const notes = clean(val(r,["Notes"]));
+  const buttonText = clean(val(r,["Button_Text","Button Text"])) || "Open Ticket";
+  const cardClass = st.live ? "live" : (highlight ? "next" : "");
+  const statusClass = st.live ? "status-active" : st.closed ? "status-eliminated" : "status-scheduled";
+  let action = "";
+  if(st.live && url){
+    action = `<a class="ticket-btn" href="${esc(url)}" target="_blank" rel="noopener">${esc(buttonText)}</a>`;
+  } else if(st.future){
+    action = `<span class="ticket-btn disabled">Opens ${esc(formatTicketDate(open))}</span>`;
+  } else if(st.closed){
+    action = `<span class="ticket-btn disabled">Window Closed</span>`;
+  } else {
+    action = `<span class="ticket-btn disabled">No form link needed</span>`;
+  }
+  return `<div class="ticket-card ${cardClass}">
+    <div class="kicker">${esc(val(r,["Ticket_ID","Ticket ID"]) || type)}</div>
+    <div class="report-title">${esc(title)}</div>
+    <div class="ticket-meta">
+      ${badge(st.label,statusClass)}
+      ${pool ? badge(pool,"tier-midmarket") : ""}
+      ${badge(type,"tier-darkhorse")}
+    </div>
+    <div class="small"><b>Opens:</b> ${esc(formatTicketDate(open))}</div>
+    <div class="small"><b>Closes:</b> ${esc(formatTicketDate(close))}</div>
+    ${notes ? `<div class="small" style="margin-top:8px">${esc(notes)}</div>` : ""}
+    ${action}
+  </div>`;
+}
+function renderDraft(){
+  const rows = state.draftTickets.filter(r=>clean(val(r,["Title"])));
+  const focus = nextLiveOrUpcomingTicket();
+  const focusStatus = ticketStatus(focus);
+  document.getElementById("draft").innerHTML = `
+    <div class="draft-hero-card">
+      <div class="kicker">Draft Hub</div>
+      <div class="report-title">Draft Week Ticket Office</div>
+      <div class="report-body">Ticket links unlock during their scheduled window. The Google Form timestamp is the official clock, so early or late tickets can still be caught by spreadsheet VAR.</div>
+      <div class="quick-rules-grid">
+        <div class="quick-rule"><b>Daily Window</b><br><span class="small">12:00 to 22:00</span></div>
+        <div class="quick-rule"><b>Processing</b><br><span class="small">First come, first served by timestamp</span></div>
+        <div class="quick-rule"><b>Missed Ticket</b><br><span class="small">Moved to Supplemental Draft</span></div>
+        <div class="quick-rule"><b>Final Target</b><br><span class="small">Every real team reaches 6 nations</span></div>
+      </div>
+    </div>
+
+    <div class="grid two">
+      <div class="card">
+        <div class="kicker">${focusStatus.live ? "Live Now" : "Next / Current Window"}</div>
+        ${clean(val(focus,["Title"])) ? renderTicketCard(focus,true) : `<div class="small">No draft tickets loaded yet.</div>`}
+      </div>
+      <div class="card">
+        <div class="kicker">Draft Week Rules</div>
+        <ul class="rules-list">
+          <li>Each real team submits one ticket per active pool day.</li>
+          <li>Tickets are processed by Google Form timestamp.</li>
+          <li>Once a nation is drafted, it cannot be selected again.</li>
+          <li>Chip G. P. Tactico gets 6 nations on Saturday morning from the remaining pool.</li>
+          <li>Saturday afternoon Supplemental Draft fills every real team to 6 nations.</li>
+          <li>Captain Nation deadline is 10/06/2026 at 23:59.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:14px">
+      <div class="kicker">All Ticket Windows</div>
+      <div class="ticket-grid">
+        ${rows.map(r=>renderTicketCard(r,false)).join("") || "<div class='small'>No ticket rows found.</div>"}
+      </div>
+    </div>`;
+}
+
 function renderRules(){
   document.getElementById("rules").innerHTML=`
   <div class="rules-wrap">
@@ -892,20 +965,10 @@ function showSignupClosed(){
   body.innerHTML=`
     <div style="padding:18px">
       <h2 style="margin:0 0 8px">Sign-Up Closed</h2>
-      <p class="small">The entry window has now closed. The game has moved into Draft Week.</p>
-      <div class="draft-list" style="margin-top:14px">
-        <div class="draft-item"><b>Draft windows</b><br><span class="small">12:00 to 22:00</span></div>
-        <div class="draft-item"><b>Ticket system</b><br><span class="small">First come, first served</span></div>
-        <div class="draft-item"><b>Saturday AM</b><br><span class="small">ChatGPT team allocation</span></div>
-        <div class="draft-item"><b>Saturday PM</b><br><span class="small">Supplemental Draft</span></div>
-      </div>
-      <p class="small" style="margin-top:14px">Watch the WhatsApp group and Market Reports for pool announcements, draft ticket links, and allocation updates.</p>
+      <p class="small">The entry window has now closed. Use the Draft tab for ticket windows, pool links and draft week rules.</p>
+      <p class="small">Watch the WhatsApp group and Market Reports for pool announcements, allocation updates and general spreadsheet violence.</p>
     </div>`;
   document.getElementById("signupModal").style.display="block";
-}
-function scrollToDraftInfo(){
-  const el = document.getElementById("draftInfo");
-  if(el) el.scrollIntoView({behavior:"smooth", block:"center"});
 }
 
 function goPage(page){
@@ -922,7 +985,7 @@ document.querySelectorAll("button.tab").forEach(btn=>{
   });
 });
 
-function renderAll(){renderHome();renderLeague();renderFixtures();renderPortfolios();renderNations();renderReports();renderRules();}
+function renderAll(){renderHome();renderDraft();renderLeague();renderFixtures();renderPortfolios();renderNations();renderReports();renderRules();}
 
 (async function init(){
   const entries=Object.entries(TABLES);
