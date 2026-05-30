@@ -115,7 +115,7 @@
       position:relative;
     }
     .hero:after{
-      content:"MARKET OPEN";
+      content:"DRAFT WEEK";
       position:absolute;right:-28px;top:20px;
       font-size:52px;font-weight:1000;letter-spacing:3px;
       color:rgba(255,255,255,.045);
@@ -123,6 +123,44 @@
     }
     .hero h2{font-size:28px;margin:0 0 4px}
     .hero p{margin:0;color:var(--muted)}
+
+    .status-strip{
+      display:grid;
+      grid-template-columns:1.1fr .9fr;
+      gap:12px;
+      margin-top:14px;
+    }
+    .status-panel{
+      border:1px solid rgba(255,209,102,.28);
+      background:linear-gradient(135deg,rgba(255,209,102,.13),rgba(255,62,165,.08));
+      border-radius:16px;
+      padding:14px;
+    }
+    .status-pill{
+      display:inline-flex;
+      align-items:center;
+      border-radius:999px;
+      padding:7px 10px;
+      font-weight:1000;
+      font-size:12px;
+      color:#06101d;
+      background:linear-gradient(135deg,var(--gold),#fff2a8);
+      margin-bottom:9px;
+    }
+    .draft-list{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:8px;
+      margin-top:10px;
+    }
+    .draft-item{
+      background:rgba(255,255,255,.055);
+      border:1px solid rgba(255,255,255,.09);
+      border-radius:12px;
+      padding:9px;
+      font-size:13px;
+    }
+
     .hero-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
     .cta{
       border:0;border-radius:14px;padding:12px 16px;font-weight:1000;cursor:pointer;
@@ -325,16 +363,61 @@
     .debug{display:none;font-size:12px;color:#8fd7ff;margin-top:14px}.show-debug .debug{display:block}.ok{color:var(--green)}.err{color:var(--red)}
 
     @media(max-width:820px){
-      header{padding:14px}
-      h1{font-size:25px}
+      header{padding:12px}
+      h1{font-size:22px}
+      .tagline{font-size:12px}
+      .logo{width:40px;height:40px;border-radius:12px}
       .menuToggle{display:block}
       nav{display:none}
-      nav.open{display:flex;position:fixed;left:12px;right:12px;top:82px;background:rgba(5,8,20,.96);border:1px solid var(--line);border-radius:18px;padding:12px;box-shadow:var(--shadow)}
-      button.tab{width:100%;text-align:left}
-      .grid,.grid.two,.rules-wrap{grid-template-columns:1fr}
-      table{display:block;overflow-x:auto;white-space:nowrap}
+      nav.open{
+        display:grid;
+        grid-template-columns:1fr 1fr;
+        position:fixed;
+        left:12px;
+        right:12px;
+        top:74px;
+        background:rgba(5,8,20,.97);
+        border:1px solid var(--line);
+        border-radius:18px;
+        padding:12px;
+        box-shadow:var(--shadow);
+        z-index:40;
+      }
+      button.tab{width:100%;text-align:center;padding:11px 10px;font-size:13px}
+      main{padding:14px 12px 96px}
+      .hero{padding:16px;border-radius:18px}
+      .hero h2{font-size:23px}
+      .hero p{font-size:14px;line-height:1.45}
+      .hero-actions{display:grid;grid-template-columns:1fr;gap:9px}
+      .cta,.cta.secondary{width:100%;text-align:center}
+      .grid,.grid.two,.rules-wrap,.status-strip{grid-template-columns:1fr}
+      .draft-list{grid-template-columns:1fr}
+      .card{padding:13px;border-radius:15px}
+      .big{font-size:25px}
+      .report-title{font-size:19px}
+      table{display:block;overflow-x:auto;white-space:nowrap;border-radius:14px}
       th{position:static}
+      th,td{padding:10px 8px;font-size:12px}
       .hero:after{display:none}
+      .toolbar{display:grid;grid-template-columns:1fr;gap:8px}
+      input.search, select.filter{width:100%;min-width:0}
+      .portfolio-grid{grid-template-columns:1fr}
+      .team-cell{min-width:0}
+      .floating-actions{
+        left:10px;
+        right:10px;
+        bottom:10px;
+        display:grid;
+        grid-template-columns:1fr 1fr;
+        gap:8px;
+        align-items:stretch;
+      }
+      .float-btn{justify-content:center;padding:11px 9px;font-size:12px}
+      .float-icon{width:20px;height:20px}
+      .vidi-modal{padding:8px}
+      .vidi-box{margin:8px auto;border-radius:14px}
+      .vidi-body{min-height:420px;max-height:78vh}
+      .form-modal{padding:8px}
     }
   </style>
 </head>
@@ -516,14 +599,31 @@ function renderHome(){
 
   document.getElementById("home").innerHTML=`
     <div class="hero">
-      <h2>The Trading Floor is Open</h2>
-      <p>Draft nations, watch the points move, and pretend this is investment strategy rather than football chaos in a suit.</p>
+      <h2>Sign-Up Closed — Draft Week Active</h2>
+      <p>The entry window has closed. The market now moves into Draft Week: daily ticket windows, nation pools, AI allocation, and one final Supplemental Draft to complete every portfolio.</p>
       <div class="hero-actions">
-        <a class="cta" href="https://forms.gle/kSYBzuvKE2JtLQDeA" target="_blank" rel="noopener" style="text-decoration:none;display:inline-block;">Join / Register Interest</a>
+        <button class="cta" onclick="showSignupClosed()">Sign-Up Closed</button>
+        <button class="cta secondary" onclick="scrollToDraftInfo()">Draft Week Info</button>
         <button class="cta secondary" onclick="goPage('table')">View League Table</button>
         <button class="cta secondary" onclick="goPage('fixtures')">Check Fixtures</button>
       </div>
       <div class="ticker">LIVE MARKET: ${esc(ticker || "No investors listed yet. The market awaits fresh victims.")}</div>
+      <div class="status-strip" id="draftInfo">
+        <div class="status-panel">
+          <span class="status-pill">SIGN-UP CLOSED</span>
+          <div class="report-title" style="margin:0 0 6px">Draft Week is now live</div>
+          <div class="small">Daily draft ticket windows run from <b>12:00 to 22:00</b>. Teams submit tickets from the active nation pool. Tickets are processed first come, first served by timestamp.</div>
+        </div>
+        <div class="status-panel">
+          <span class="status-pill">FINAL CLEAN-UP</span>
+          <div class="draft-list">
+            <div class="draft-item"><b>Mon–Fri</b><br><span class="small">5 ticket windows</span></div>
+            <div class="draft-item"><b>Sat AM</b><br><span class="small">ChatGPT team allocation</span></div>
+            <div class="draft-item"><b>Sat PM</b><br><span class="small">Supplemental Draft</span></div>
+            <div class="draft-item"><b>10/06 23:59</b><br><span class="small">Captain deadline</span></div>
+          </div>
+        </div>
+      </div>
     </div>
 
     <div class="grid">
@@ -785,6 +885,28 @@ function openSignup(){
   document.getElementById("signupModal").style.display="block";
 }
 function closeSignup(){document.getElementById("signupModal").style.display="none"}
+
+
+function showSignupClosed(){
+  const body=document.getElementById("signupBody");
+  body.innerHTML=`
+    <div style="padding:18px">
+      <h2 style="margin:0 0 8px">Sign-Up Closed</h2>
+      <p class="small">The entry window has now closed. The game has moved into Draft Week.</p>
+      <div class="draft-list" style="margin-top:14px">
+        <div class="draft-item"><b>Draft windows</b><br><span class="small">12:00 to 22:00</span></div>
+        <div class="draft-item"><b>Ticket system</b><br><span class="small">First come, first served</span></div>
+        <div class="draft-item"><b>Saturday AM</b><br><span class="small">ChatGPT team allocation</span></div>
+        <div class="draft-item"><b>Saturday PM</b><br><span class="small">Supplemental Draft</span></div>
+      </div>
+      <p class="small" style="margin-top:14px">Watch the WhatsApp group and Market Reports for pool announcements, draft ticket links, and allocation updates.</p>
+    </div>`;
+  document.getElementById("signupModal").style.display="block";
+}
+function scrollToDraftInfo(){
+  const el = document.getElementById("draftInfo");
+  if(el) el.scrollIntoView({behavior:"smooth", block:"center"});
+}
 
 function goPage(page){
   document.querySelector(`button[data-page="${page}"]`)?.click();
