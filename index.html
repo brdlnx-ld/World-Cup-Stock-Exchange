@@ -133,10 +133,29 @@
     }
     .cta.secondary{background:rgba(255,255,255,.09);color:var(--text);border:1px solid rgba(255,255,255,.18)}
 
-    .metric-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:14px}
+    .metric-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:14px}
     .grid{display:grid;gap:14px;margin-top:14px}
     .grid.trading{grid-template-columns:1.05fr .95fr}
     .grid.two{grid-template-columns:1fr 1fr}
+    .spotlight-card{
+      position:relative;overflow:hidden;
+      background:
+        radial-gradient(circle at 12% 12%, rgba(255,209,102,.20), transparent 26%),
+        radial-gradient(circle at 92% 20%, rgba(101,242,255,.18), transparent 30%),
+        linear-gradient(135deg,rgba(22,53,98,.98),rgba(9,23,48,.96));
+      border-color:rgba(255,209,102,.28);
+    }
+    .spotlight-card:after{
+      content:"LIVE WATCH";position:absolute;right:-22px;top:12px;
+      font-size:42px;font-weight:1000;letter-spacing:3px;
+      color:rgba(255,255,255,.045);transform:rotate(8deg);pointer-events:none;
+    }
+    .spotlight-content{position:relative;z-index:1}
+    .spotlight-title{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:12px}
+    .spotlight-match{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:14px}
+    .spotlight-team{font-size:24px;font-weight:1000;letter-spacing:-.04em;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .spotlight-score{min-width:74px;text-align:center;border-radius:16px;padding:10px 12px;background:rgba(0,0,0,.28);border:1px solid rgba(255,255,255,.12);font-size:24px;font-weight:1000}
+    .spotlight-meta{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:10px}
     .card{
       background:linear-gradient(180deg,rgba(19,43,79,.93),rgba(9,23,48,.93));
       border:1px solid var(--line);
@@ -312,11 +331,12 @@
         padding:12px;box-shadow:var(--shadow);z-index:40
       }
       button.tab{width:100%;text-align:center;padding:11px 10px;font-size:13px}
-      main{padding:14px 12px 96px}
+      main{padding:14px 12px 40px}
       .hero{padding:17px;border-radius:20px}
       .hero h2{font-size:24px}
       .hero:after{display:none}
-      .metric-grid,.grid.trading,.grid.two,.rules-wrap{grid-template-columns:1fr}
+      .grid.trading,.grid.two,.rules-wrap{grid-template-columns:1fr}
+      .metric-grid{grid-template-columns:repeat(2,1fr);gap:10px}
       .match-grid{grid-template-columns:1fr}
       .toolbar{display:grid;grid-template-columns:1fr;gap:8px}
       input.search,select.filter{width:100%;min-width:0}
@@ -325,7 +345,12 @@
       th,td{padding:10px 8px;font-size:12px}
       .floating-actions{left:10px;right:10px;bottom:10px;display:grid;grid-template-columns:1fr 1fr;gap:8px;align-items:stretch}
       .float-btn{justify-content:center;padding:11px 9px;font-size:12px}
-      .vidiprinter-card .vidi-body-inline{max-height:420px}
+      .vidiprinter-card .vidi-body-inline{max-height:300px;min-height:260px}
+      .match-card{min-height:auto;padding:10px}
+      .spotlight-match{grid-template-columns:1fr;gap:8px}
+      .spotlight-team{font-size:21px;white-space:normal}
+      .spotlight-score{width:max-content;min-width:64px}
+      .card{padding:13px}
     }
   </style>
 </head>
@@ -372,17 +397,6 @@
   <section id="rules" class="page"></section>
 </main>
 
-<div class="floating-actions">
-  <button class="float-btn float-vidi" onclick="goPage('home');document.getElementById('vidiprinterPanel')?.scrollIntoView({behavior:'smooth',block:'center'});" title="Go to live vidiprinter">
-    <span class="float-icon">⚡</span>
-    <span>Vidiprinter</span>
-  </button>
-  <a class="float-btn float-whatsapp" href="https://chat.whatsapp.com/IOgPcuQc7BxI0Q3pXG3Iyx" target="_blank" rel="noopener" title="Join WhatsApp group">
-    <span class="float-icon">💬</span>
-    <span>WhatsApp</span>
-  </a>
-</div>
-
 <script>
 const SHEET_ID = "1GRDmFQt8SI-IeFVGWwAVUFin99kp7re7jx4vZbkPpxA";
 const TABLES = {
@@ -391,7 +405,7 @@ const TABLES = {
   portfolios: "Public_Portfolios",
   rules: "Public_Rules"
 };
-const state = { league:[], fixtures:[], portfolios:[], rules:[], errors:[] };
+const state = { league:[], fixtures:[], portfolios:[], rules:[], errors:[], refreshing:false, lastDataRefresh:null };
 
 if (new URLSearchParams(window.location.search).get("debug") === "1") {
   document.body.classList.add("show-debug");
@@ -433,7 +447,7 @@ function loadSheet(key,sheetName){
     function cleanup(){clearTimeout(timeout);try{delete window[cb]}catch(e){window[cb]=undefined} const s=document.getElementById(cb); if(s)s.remove()}
     window[cb]=json=>{try{if(json.status==="error")throw new Error(json.errors?.[0]?.detailed_message||"Google returned an error");const rows=getRowsFromGvizResponse(json);cleanup();resolve(rows)}catch(e){state.errors.push(`${sheetName}: ${e.message}`);cleanup();resolve([])}};
     const script=document.createElement("script");script.id=cb;script.onerror=()=>{state.errors.push(`${sheetName}: script load failed`);cleanup();resolve([])};
-    script.src=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=responseHandler:${cb}&sheet=${encodeURIComponent(sheetName)}&tq=${encodeURIComponent("select *")}`;
+    script.src=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=responseHandler:${cb}&sheet=${encodeURIComponent(sheetName)}&tq=${encodeURIComponent("select *")}&_=${Date.now()}`;
     document.body.appendChild(script);
   });
 }
@@ -489,32 +503,162 @@ function fixtureA(row){return clean(val(row,["Team_A","Team A","Home","Home_Team
 function fixtureB(row){return clean(val(row,["Team_B","Team B","Away","Away_Team","Away Team","Nation_B","Nation B"]))}
 function fixtureStatus(row){return clean(val(row,["Status","Match_Status","Match Status"])) || "Scheduled"}
 function fixtureScore(row){
-  const direct=clean(val(row,["Score","Result","Full_Time","Full Time"]));
+  const direct=clean(val(row,["Score_Display","Score Display","Score","Result","Full_Time","Full Time"]));
   if(direct) return direct;
   const a=clean(val(row,["A_Goals","A Goals","AGoals","Home_Goals","Home Goals"]));
   const b=clean(val(row,["B_Goals","B Goals","BGoals","Away_Goals","Away Goals"]));
   return (a!==""||b!=="")?`${a||0}-${b||0}`:"v";
 }
-function fixtureDate(row){return clean(val(row,["Date","UK_Date","UK Date","Kickoff_Date","Kickoff Date","Match_Date","Match Date"]))}
-function fixtureTime(row){return clean(val(row,["Time","UK_Time","UK Time","Kickoff_Time","Kickoff Time","Kick_Off","Kick Off"]))}
+function isTimeOnly(v){return /^\d{1,2}[:.]\d{2}$/.test(clean(v)) || /^\d{1,2}[:.]\d{2}\s*(am|pm)$/i.test(clean(v))}
+function fixtureDate(row){
+  return clean(val(row,[
+    "Fixture_Date","Fixture Date","Match_Date","Match Date","Kickoff_Date","Kickoff Date","Kick_Off_Date","Kick Off Date",
+    "UK_Date","UK Date","Date","Date (UK)","UK Date (UK)","Fixture Day","Match Day","Day","Matchday_Date","Matchday Date","Matchday"
+  ]));
+}
+function fixtureTime(row){
+  return clean(val(row,[
+    "Fixture_Time","Fixture Time","Match_Time","Match Time","Kickoff_Time","Kickoff Time","Kick_Off_Time","Kick Off Time",
+    "UK_Time","UK Time","Time","Time (UK)","KO","KO Time","Kickoff","Kick-off","Kick Off","Kickoff_UK","Kickoff UK"
+  ]));
+}
 function fixtureDateTime(row){
-  const dt=clean(val(row,["DateTime","Date_Time","Date Time","Kickoff","Kickoff_UK","Kickoff UK"]));
+  const date = fixtureDate(row);
+  const time = fixtureTime(row);
+  const dt = clean(val(row,["DateTime","Date_Time","Date Time","Fixture_DateTime","Fixture DateTime","Kickoff_DateTime","Kickoff DateTime"]));
+  if(dt && !isTimeOnly(dt)) return dt;
+  if(date && time) return `${date} • ${time}`;
+  if(date && dt && isTimeOnly(dt)) return `${date} • ${dt}`;
+  if(date) return date;
+  if(time) return time;
   if(dt) return dt;
-  return [fixtureDate(row), fixtureTime(row)].filter(Boolean).join(" • ") || "TBC";
+  return "TBC";
 }
 function fixtureStage(row){return clean([val(row,["Stage"]), val(row,["Group"]), val(row,["Round"])].filter(Boolean).join(" • "))}
 function isPlayed(row){const s=slug(fixtureStatus(row)); return s.includes("played")||s.includes("fulltime")||s==="ft"||s.includes("complete")}
-function recentResults(){
-  return state.fixtures.filter(isPlayed).slice(-4).reverse();
+function recentResults(limit=4){
+  return state.fixtures.filter(isPlayed).sort((a,b)=>(fixtureStartTime(b)||0)-(fixtureStartTime(a)||0)).slice(0,limit);
 }
-function upcomingFixtures(){
-  return state.fixtures.filter(r=>!isPlayed(r)).slice(0,4);
+function upcomingFixtures(limit=4){
+  const now=Date.now();
+  return state.fixtures
+    .filter(r=>!isPlayed(r))
+    .sort((a,b)=>{
+      const at=fixtureStartTime(a), bt=fixtureStartTime(b);
+      if(at && bt) return at-bt;
+      if(at) return at >= now ? -1 : 1;
+      if(bt) return bt >= now ? 1 : -1;
+      return 0;
+    })
+    .slice(0,limit);
+}
+function parseTimePart(value){
+  const s=clean(value).toLowerCase().replace('.',':');
+  const m=s.match(/(\d{1,2})(?::(\d{2}))?\s*(am|pm)?/);
+  if(!m) return null;
+  let h=Number(m[1]);
+  const min=Number(m[2]||0);
+  const ap=m[3];
+  if(ap==='pm' && h<12) h+=12;
+  if(ap==='am' && h===12) h=0;
+  if(h>23 || min>59) return null;
+  return {h,min};
+}
+function parseDatePart(value){
+  let s=clean(value);
+  if(!s || isTimeOnly(s)) return null;
+  s=s.replace(/\b(Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday|Mon|Tue|Wed|Thu|Fri|Sat|Sun)\b[,]?/gi,'').trim();
+  s=s.replace(/(\d)(st|nd|rd|th)\b/gi,'$1');
+  const iso=s.match(/(20\d{2})[-\/](\d{1,2})[-\/](\d{1,2})/);
+  if(iso) return {y:Number(iso[1]),m:Number(iso[2])-1,d:Number(iso[3])};
+  const uk=s.match(/(\d{1,2})[-\/](\d{1,2})[-\/](20\d{2})/);
+  if(uk) return {y:Number(uk[3]),m:Number(uk[2])-1,d:Number(uk[1])};
+  const months={jan:0,january:0,feb:1,february:1,mar:2,march:2,apr:3,april:3,may:4,jun:5,june:5,jul:6,july:6,aug:7,august:7,sep:8,sept:8,september:8,oct:9,october:9,nov:10,november:10,dec:11,december:11};
+  const named=s.toLowerCase().match(/(\d{1,2})\s+([a-z]+)\s+(20\d{2})/);
+  if(named && months[named[2]]!==undefined) return {y:Number(named[3]),m:months[named[2]],d:Number(named[1])};
+  const parsed=Date.parse(s);
+  if(!isNaN(parsed)){ const d=new Date(parsed); return {y:d.getFullYear(),m:d.getMonth(),d:d.getDate()}; }
+  return null;
+}
+function fixtureStartDate(row){
+  const direct=clean(val(row,[
+    'DateTime','Date Time','Date_Time','Fixture_DateTime','Fixture DateTime','Kickoff_DateTime','Kickoff DateTime',
+    'Kick-off','Kick Off','Kickoff','Kick_Off','KO','KO_Time','KO Time','UK_Kickoff','UK Kickoff','UK Kick-off','Kickoff_UK','Kickoff UK',
+    'Date/Time','Date Time UK','UK Date Time','UK_Date_Time','UK_DateTime'
+  ]));
+  const date=fixtureDate(row);
+  const time=fixtureTime(row);
+  const directDate=parseDatePart(direct);
+  const directTime=parseTimePart(direct);
+  if(directDate){
+    const t=directTime || parseTimePart(time) || {h:0,min:0};
+    return new Date(directDate.y,directDate.m,directDate.d,t.h,t.min,0,0);
+  }
+  const d=parseDatePart(date);
+  const t=parseTimePart(time || direct);
+  if(d && t) return new Date(d.y,d.m,d.d,t.h,t.min,0,0);
+  if(d) return new Date(d.y,d.m,d.d,0,0,0,0);
+  return null;
+}
+function fixtureStartTime(row){
+  const d=fixtureStartDate(row);
+  return d ? d.getTime() : 0;
+}
+function isOngoingFixture(row){
+  const s=slug(fixtureStatus(row));
+  // Google Sheet status values: Scheduled, In-play, Played.
+  // slug('In-play') becomes 'inplay', so check that first.
+  if(s==='inplay' || s==='inplaynow' || s.includes('inplay') || s.includes('live') || s.includes('inprogress') || s.includes('ongoing') || s.includes('halftime') || s==='ht' || s==='1h' || s==='2h') return true;
+  if(isPlayed(row)) return false;
+  const start=fixtureStartTime(row);
+  if(!start) return false;
+  const now=Date.now();
+  return now >= start && now <= start + (135*60*1000);
+}
+function focusFixture(){
+  const live=state.fixtures.filter(isOngoingFixture).sort((a,b)=>(fixtureStartTime(a)||0)-(fixtureStartTime(b)||0))[0];
+  if(live) return {row:live,label:'Ongoing Match',mode:'live'};
+  const now=Date.now();
+  const next=state.fixtures
+    .filter(r=>!isPlayed(r))
+    .sort((a,b)=>{
+      const at=fixtureStartTime(a), bt=fixtureStartTime(b);
+      if(at && bt) return (at<now?Number.MAX_SAFE_INTEGER:at) - (bt<now?Number.MAX_SAFE_INTEGER:bt);
+      if(at) return -1;
+      if(bt) return 1;
+      return 0;
+    })[0];
+  return next ? {row:next,label:'Next Match',mode:'next'} : {row:null,label:'Next Match',mode:'none'};
 }
 
 function ownerChipsForFixture(row){
   const a=fixtureA(row), b=fixtureB(row);
   const owners=[ownerForNation(a),ownerForNation(b)].filter(Boolean);
   return owners.map(o=>`<div class="owner-chip">${logoImg(o.row,"small")}<span><b>${esc(o.nation||o.code)}</b> — ${esc(o.team)} <span class="muted">(${esc(o.manager)})</span></span></div>`).join("");
+}
+function renderSpotlightMatch(focus){
+  const row=focus.row;
+  if(!row){
+    return `<div class="card spotlight-card"><div class="spotlight-content"><div class="kicker">${esc(focus.label)}</div><h2 class="section-title">No fixture found</h2><div class="small">Once the fixture sheet has upcoming matches, this will update automatically.</div></div></div>`;
+  }
+  const a=fixtureA(row)||'TBC';
+  const b=fixtureB(row)||'TBC';
+  const liveBadge=focus.mode==='live' ? badge('Live now','green') : badge('Up next','gold');
+  return `<div class="card spotlight-card">
+    <div class="spotlight-content">
+      <div class="spotlight-title">
+        <div><div class="kicker">${esc(focus.label)}</div><h2 class="section-title">${esc(a)} v ${esc(b)}</h2></div>
+        <div class="pillrow">${liveBadge}${statusBadge(fixtureStatus(row))}</div>
+      </div>
+      <div class="spotlight-match">
+        <div class="spotlight-team">${esc(a)}</div>
+        <div class="spotlight-score">${esc(fixtureScore(row))}</div>
+        <div class="spotlight-team" style="text-align:right">${esc(b)}</div>
+      </div>
+      <div class="spotlight-meta">${badge(fixtureDateTime(row),'blue')}${fixtureStage(row)?badge(fixtureStage(row),'purple'):''}</div>
+      <div class="owner-list">${ownerChipsForFixture(row) || `<span class="small">No WCSX owner matched yet.</span>`}</div>
+    </div>
+  </div>`;
 }
 function renderMatchCard(row,type){
   const a=fixtureA(row)||"TBC";
@@ -545,52 +689,38 @@ function renderCompactTable(rows,limit=8){
 
 function renderHome(){
   const standings=leagueSorted();
-  const leader=standings[0]||{};
-  const recent=recentResults();
-  const next=upcomingFixtures();
-  const played=state.fixtures.filter(isPlayed).length;
-  const nextOne=next[0]||{};
-  const portfolioCount=Object.keys(portfoliosByTeam()).length;
+  const isMobile = window.matchMedia("(max-width:900px)").matches;
+  const recent=recentResults(isMobile?2:4);
+  const next=upcomingFixtures(isMobile?2:4);
+  const focus=focusFixture();
 
   document.getElementById("homeDynamic").innerHTML=`
-    <div class="hero">
-      <div class="hero-inner">
-        <div class="kicker">Market Open</div>
-        <h2>Live Trading Floor</h2>
-        <p>The draft tabs are gone. The market is now about results, table swings, upcoming damage and live match chaos. Keep this page open during games like a proper WCSX control room.</p>
-        <div class="hero-actions">
-          <button class="cta" onclick="goPage('fixtures')">Tonight’s Fixtures</button>
-          <button class="cta secondary" onclick="goPage('table')">Full League Table</button>
-          <button class="cta secondary" onclick="goPage('portfolios')">Team Portfolios</button>
-        </div>
-      </div>
-    </div>
-
-    <div class="metric-grid">
-      <div class="card"><div class="kicker">Leader</div><div style="margin-top:10px">${teamDisplay(leader,"big")}</div><div class="big">${esc(formatNumber(totalPoints(leader)))}</div><div class="small">points</div></div>
-      <div class="card"><div class="kicker">Fixtures Played</div><div class="big">${played}</div><div class="small">of ${state.fixtures.length || "TBC"}</div></div>
-      <div class="card"><div class="kicker">Teams Trading</div><div class="big">${portfolioCount || 0}</div><div class="small">investment teams</div></div>
-      <div class="card"><div class="kicker">Next Match</div><div class="big" style="font-size:20px">${esc(fixtureA(nextOne)||"TBC")} <span class="small">v</span> ${esc(fixtureB(nextOne)||"TBC")}</div><div class="small">${esc(fixtureDateTime(nextOne))}</div></div>
-    </div>
+    ${renderSpotlightMatch(focus)}
 
     <div class="grid trading">
       <div class="card">
         <div class="card-header">
-          <div><div class="kicker">Condensed Table</div><h3 class="section-title">Position • Logo • Points</h3></div>
+          <div><div class="kicker">League Table</div><h3 class="section-title">Top of the Market</h3></div>
           <button class="cta secondary" onclick="goPage('table')">Full Table</button>
         </div>
-        ${renderCompactTable(standings,8)}
+        ${renderCompactTable(standings,isMobile?6:8)}
       </div>
     </div>
 
     <div class="grid two">
       <div class="card">
-        <div class="card-header"><div><div class="kicker">Market Impact</div><h3 class="section-title">Recent Results</h3></div></div>
-        <div class="match-grid">${recent.length?recent.map(r=>renderMatchCard(r,"played")).join(""):`<div class="empty">No played fixtures found yet.</div>`}</div>
+        <div class="card-header">
+          <div><div class="kicker">Next Up</div><h3 class="section-title">Next Fixtures</h3></div>
+          <button class="cta secondary" onclick="goPage('fixtures')">All Fixtures</button>
+        </div>
+        <div class="match-grid">${next.length?next.map(r=>renderMatchCard(r,"upcoming")).join(""):`<div class="empty">No upcoming fixtures found yet.</div>`}</div>
       </div>
       <div class="card">
-        <div class="card-header"><div><div class="kicker">Upcoming Damage</div><h3 class="section-title">Next Fixtures</h3></div></div>
-        <div class="match-grid">${next.length?next.map(r=>renderMatchCard(r,"upcoming")).join(""):`<div class="empty">No upcoming fixtures found yet.</div>`}</div>
+        <div class="card-header">
+          <div><div class="kicker">Latest Results</div><h3 class="section-title">Recent Results</h3></div>
+          <button class="cta secondary" onclick="goPage('fixtures')">All Results</button>
+        </div>
+        <div class="match-grid">${recent.length?recent.map(r=>renderMatchCard(r,"played")).join(""):`<div class="empty">No played fixtures found yet.</div>`}</div>
       </div>
     </div>
 
@@ -609,17 +739,15 @@ function renderLeague(){
   document.getElementById("table").innerHTML=`
     <div class="card" style="margin-bottom:14px">
       <div class="card-header">
-        <div><div class="kicker">League Table</div><h2 class="section-title">Current Market Standings</h2><div class="small">Cleaner table view: team badge, manager, played and points.</div></div>
+        <div><div class="kicker">League Table</div><h2 class="section-title">Current Market Standings</h2><div class="small">Cleaner table view: position, team badge, manager and points.</div></div>
       </div>
     </div>
     ${renderTable(rows,[
       {label:"Pos",render:(r,i)=>`<span class="pos ${i===0?'podium1':i===1?'podium2':i===2?'podium3':''}">${i+1}</span>`},
       {label:"Team",render:r=>teamDisplay(r)},
       {label:"Manager",render:r=>esc(managerName(r))},
-      {label:"Played",num:true,render:r=>esc(playedCount(r))},
       {label:"Points",num:true,render:r=>`<b>${esc(formatNumber(totalPoints(r)))}</b>`},
-      {label:"Captain",render:r=>clean(val(r,["Captain_Nation","Captain Nation","Captain"]))?badge(val(r,["Captain_Nation","Captain Nation","Captain"]),"gold"):""},
-      {label:"Notes",keys:["Notes"]}
+      {label:"Captain",render:r=>clean(val(r,["Captain_Nation","Captain Nation","Captain"]))?badge(val(r,["Captain_Nation","Captain Nation","Captain"]),"gold"):""}
     ])}`;
 }
 
@@ -634,7 +762,7 @@ function renderFixtures(){
     </div>
     <div class="toolbar">
       <select class="filter" id="fixtureStatus" onchange="applyFixtureFilters()">
-        <option value="Upcoming" selected>Upcoming</option>
+        <option value="Upcoming" selected>Upcoming / In-play</option>
         <option value="Played">Played</option>
         <option value="All">All</option>
         ${statuses.filter(s=>!["Scheduled","Played"].includes(s)).map(s=>`<option>${esc(s)}</option>`).join("")}
@@ -660,12 +788,11 @@ function applyFixtureFilters(){
     return okS && okTeam && okQ;
   });
   document.getElementById("fixtureTable").innerHTML=renderTable(rows,[
-    {label:"Date/Time",render:r=>esc(fixtureDateTime(r))},
+    {label:"Date & Time",render:r=>esc(fixtureDateTime(r))},
     {label:"Stage",render:r=>esc(fixtureStage(r))},
     {label:"Fixture",render:r=>`${esc(fixtureA(r))} <b>${esc(fixtureScore(r))}</b> ${esc(fixtureB(r))}`},
     {label:"WCSX Teams",render:r=>ownerChipsForFixture(r) || `<span class="small">No owner matched</span>`},
-    {label:"Status",render:r=>statusBadge(fixtureStatus(r))},
-    {label:"Notes",keys:["Notes"]}
+    {label:"Status",render:r=>statusBadge(fixtureStatus(r))}
   ]);
 }
 
@@ -743,6 +870,13 @@ function reloadFootballWebPagesEmbed(){
   // Official Football Web Pages embed is static in the HTML below.
 }
 
+
+let resizeTimer;
+window.addEventListener("resize",()=>{
+  clearTimeout(resizeTimer);
+  resizeTimer=setTimeout(()=>{ if(state.league.length || state.fixtures.length) renderHome(); },150);
+});
+
 function renderAll(){
   renderHome();
   renderLeague();
@@ -766,11 +900,28 @@ document.querySelectorAll("button.tab").forEach(btn=>{
   });
 });
 
-(async function init(){
+async function refreshData({silent=false}={}){
+  if(state.refreshing) return;
+  state.refreshing = true;
   const entries=Object.entries(TABLES);
-  const results=await Promise.all(entries.map(([key,name])=>loadSheet(key,name)));
-  entries.forEach(([key],i)=>state[key]=results[i]);
-  renderAll();
+  const previousErrors = state.errors || [];
+  state.errors = [];
+  try{
+    const results=await Promise.all(entries.map(([key,name])=>loadSheet(key,name)));
+    entries.forEach(([key],i)=>state[key]=results[i]);
+    state.lastDataRefresh = new Date();
+    renderAll();
+  }catch(e){
+    state.errors = previousErrors.concat([`Auto refresh failed: ${e.message || e}`]);
+    if(!silent) renderAll();
+  }finally{
+    state.refreshing = false;
+  }
+}
+
+(async function init(){
+  await refreshData();
+  setInterval(()=>refreshData({silent:true}), 30000);
 })();
 </script>
 <script src="https://www.footballwebpages.co.uk/embed.js" defer></script>
