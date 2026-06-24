@@ -28,7 +28,7 @@ const SHEET_ID="1GRDmFQt8SI-IeFVGWwAVUFin99kp7re7jx4vZbkPpxA";
 const TABLES={league:"Public_League_Table",fixtures:"Public_Fixtures",portfolios:"Public_Portfolios",rules:"Public_Rules"};
 // Paste your deployed Apps Script Web App URL between the quotes below.
 // Everyone still only uses the normal GitHub Pages link; this proxy keeps the football-data.org key out of GitHub.
-const FOOTBALL_DATA_PROXY_URL="PASTE_YOUR_APPS_SCRIPT_WEB_APP_URL_HERE";
+const FOOTBALL_DATA_PROXY_URL="https://script.google.com/macros/s/AKfycbwF_82Hl4yBdVVSiHy58tGhvTqUx9tQ4JBSMwt53iHUjNyycmjRhQU1PMzq9dHzExL6/exec";
 const state={league:[],fixtures:[],portfolios:[],rules:[],apiMatches:[],errors:[],lastRefresh:null,apiSource:"Sheet fallback",fixtureDayOffset:0,tableMoves:{}};
 
 function clean(v){return String(v??"").trim()}
